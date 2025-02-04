@@ -1,0 +1,12 @@
+.venv/
+venv/
+
+__pycache__/
+app/__pycache__/
+
+app/database.db
+
+app/flask_session/
+
+.idea/
+.vscode/
