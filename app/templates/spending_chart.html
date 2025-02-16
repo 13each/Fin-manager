@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spending Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    #spendingChart {
+      max-width: 800px;
+      max-height: 800px;
+      margin: 0 auto;
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 100%;
+    }
+    .chart-container canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Spending Chart</h1>
+  <div class="chart-container">
+    <canvas id="spendingChart"></canvas>
+  </div>
+
+  <script>
+    var chartData = {{ chart_data | tojson }};
+
+    const categorySeparatorPlugin = {
+      id: 'categorySeparatorPlugin',
+      afterDraw: (chart, args, options) => {
+        const ctx = chart.ctx;
+        const meta = chart.getDatasetMeta(0);
+        const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+        const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+        const outerRadius = meta.outerRadius;
+        const groupCount = meta.data.length / 2;
+
+        for (let group = 1; group < groupCount; group++) {
+          let index = group * 2;
+          if (index < meta.data.length) {
+            let segment = meta.data[index];
+            let angle = segment.startAngle;
+            let x = centerX + outerRadius * Math.cos(angle);
+            let y = centerY + outerRadius * Math.sin(angle);
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x, y);
+            ctx.lineWidth = options.thickness || 6;
+            ctx.strokeStyle = options.color || '#000000';
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+      }
+    };
+
+    Chart.register(categorySeparatorPlugin);
+
+    var ctx = document.getElementById('spendingChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: chartData.data,
+          backgroundColor: chartData.backgroundColors,
+          borderWidth: 1,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '50%',
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                var index = context.dataIndex;
+                var groupIndex = Math.floor(index / 2);
+                var spent = context.dataset.data[groupIndex * 2];
+                var remaining = context.dataset.data[groupIndex * 2 + 1];
+                var limit = spent + remaining;
+                var catName = chartData.categoryLabels[groupIndex];
+                if (index % 2 === 0) {
+                  var percentSpent = limit > 0 ? (spent / limit * 100).toFixed(1) : 0;
+                  return catName + ": Spent " + spent + " of " + limit + " (" + percentSpent + "%)";
+                } else {
+                  var percentRemaining = limit > 0 ? (remaining / limit * 100).toFixed(1) : 0;
+                  return catName + ": Remaining " + remaining + " of " + limit + " (" + percentRemaining + "%)";
+                }
+              }
+            }
+          },
+          legend: {
+            display: false
+          }
+        }
+      },
+      plugins: [{
+        id: 'categorySeparatorPlugin',
+        thickness: 6,
+        color: '#000000'
+      }]
+    });
+  </script>
+
+  <br>
+  <a href="{{ url_for('routes.home') }}">Back to Home</a>
+</body>
+</html>
+

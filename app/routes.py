@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.models import get_user_by_email, update_categories, get_categories
 import bcrypt
 import json
@@ -73,17 +73,21 @@ def add_category():
 
     if request.method == 'POST':
         name = request.form['name']
-        limit = float(request.form['limit'])
-
+        try:
+            limit = float(request.form['limit'])
+        except ValueError:
+            flash("Invalid limit value!", "error")
+            return redirect(url_for('routes.add_category'))
         categories = get_categories(session['user_email'])
 
         if name in categories:
-            return f"Category '{name}' already exists!", 400
+            flash(f"Category {name} already exists!", "error")
+            return redirect(url_for('routes.add_category'))
 
         categories[name] = {"limit": limit, "spent": 0}
         update_categories(session['user_email'], categories)
-
-        return redirect(url_for('routes.home'))
+        flash("Category added successfully", "success")
+        return redirect(url_for('routes.add_category'))
 
     return render_template('add_category.html')
 
@@ -94,17 +98,60 @@ def add_spending():
         return redirect(url_for('routes.login'))
 
     categories = get_categories(session['user_email'])
-
     if request.method == 'POST':
         category = request.form['category']
-        amount = float(request.form['amount'])
+        try:
+            amount = float(request.form['amount'])
+        except ValueError:
+            flash("Invalid amount value", "error")
+            return redirect(url_for('routes.add_spending'))
 
         if category not in categories:
-            return f"Category '{category}' does not exist!", 400
+            flash(f"Category {category} does not exist!", "error")
+            return redirect(url_for('routes.add_spending'))
 
         categories[category]['spent'] += amount
         update_categories(session['user_email'], categories)
-
-        return redirect(url_for('routes.home'))
+        flash("Spending added successfully", "success")
+        return redirect(url_for('routes.add_spending'))
 
     return render_template('add_spending.html', categories=categories)
+
+@routes.route('/spending-chart')
+def spending_chart():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+
+    categories_data = get_categories(session['user_email'])
+
+    data = []
+    bgColors = []
+    categoryLabels = []
+
+    colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FFA07A', '#8A2BE2']
+
+    for i, (cat, catData) in enumerate(categories_data.items()):
+        limit = catData.get("limit", 0)
+        spent = catData.get("spent", 0)
+        if limit <= 0:
+            continue
+        if spent > limit:
+            spent = limit
+        remaining = limit - spent
+
+        data.append(spent)
+        data.append(remaining)
+
+        color = colors[i % len(colors)]
+        bgColors.append(color)
+        bgColors.append('#e0e0e0')
+
+        categoryLabels.append(cat)
+
+    chart_data = {
+        "data": data,
+        "backgroundColors": bgColors,
+        "categoryLabels": categoryLabels
+    }
+
+    return render_template('spending_chart.html', chart_data=chart_data)
