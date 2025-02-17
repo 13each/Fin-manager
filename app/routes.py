@@ -1,8 +1,7 @@
 import sqlite3
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from app.models import get_user_by_email, update_categories, get_categories
 import bcrypt
-import json
 
 routes = Blueprint('routes', __name__)
 
@@ -106,9 +105,15 @@ def add_spending():
             flash("Invalid amount value", "error")
             return redirect(url_for('routes.add_spending'))
 
+        if amount < 0:
+            flash("Spending amount cannot be negative", "error")
+            return redirect(url_for('routes.add_spending'))
+
         if category not in categories:
             flash(f"Category {category} does not exist!", "error")
             return redirect(url_for('routes.add_spending'))
+
+        session['last_spending'] = {'category': category, 'amount': amount}
 
         categories[category]['spent'] += amount
         update_categories(session['user_email'], categories)
@@ -116,6 +121,7 @@ def add_spending():
         return redirect(url_for('routes.add_spending'))
 
     return render_template('add_spending.html', categories=categories)
+
 
 @routes.route('/spending-chart')
 def spending_chart():
@@ -155,3 +161,35 @@ def spending_chart():
     }
 
     return render_template('spending_chart.html', chart_data=chart_data)
+
+
+@routes.route('/history')
+def history():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+
+    categories = get_categories(session['user_email'])
+    return render_template('history.html', categories=categories)
+
+
+
+@routes.route('/undo-spending-ajax', methods = ['POST'])
+def undo_spending_ajax():
+    if 'user_email' not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 403
+
+    last_spending = session['last_spending']
+    if not last_spending:
+        return jsonify({"status": "error", "message": "No spending to undo"}), 400
+
+    category = last_spending.get('category')
+    amount = last_spending.get('amount', 0)
+    categories = get_categories(session['user_email'])
+
+    if category in categories:
+        categories[category]['spent'] = max(categories[category]['spent'] - amount, 0)
+        update_categories(session['user_email'], categories)
+        session.pop('last_spending', None)
+        return jsonify({"status": "success", "message": "Last spending undone successfully"})
+    else:
+        return jsonify({"status": "error", "message": "Category not found, cannot undo"}), 400
