@@ -1,17 +1,23 @@
 import os
 from flask import Flask
 from flask_session import Session
+from flask_mail import Mail
 from app.models import init_db
+
+mail = Mail()
+
 
 def create_app():
     app = Flask(__name__)
 
-    # Настройки приложения
+    app.config.from_object('app.config.Config')
+
+    mail.init_app(app)
+
+    # Настройки сессий
     app.config['SESSION_TYPE'] = 'filesystem'
-    app.config['SECRET_KEY'] = 'your_secret_key'
     app.config['SESSION_FILE_DIR'] = os.path.join(os.path.dirname(__file__), 'flask_session')
 
-    # Инициализация сессий
     Session(app)
 
     # Инициализация базы данных

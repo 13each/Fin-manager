@@ -2,6 +2,10 @@ import sqlite3
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from app.models import get_user_by_email, update_categories, get_categories
 import bcrypt
+import random
+from flask_mail import Message
+from app import mail
+from app.models import DB_PATH
 
 routes = Blueprint('routes', __name__)
 
@@ -21,20 +25,27 @@ def register():
         confirm_password = request.form['confirm_password']
 
         if password != confirm_password:
-            return "Passwords do not match!", 400
+            flash("Passwords do not match!", "error")
+            return redirect(url_for('routes.register'))
 
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        if get_user_by_email(email):
+            flash("Email already exists!", "error")
+            return redirect(url_for('routes.register'))
 
-        try:
-            conn = sqlite3.connect('app/database.db')
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO users (email, password) VALUES (?, ?)', (email, hashed_password))
-            conn.commit()
-            conn.close()
-        except sqlite3.IntegrityError:
-            return "Email already exists!", 400
+        confirmation_code = str(random.randint(100000, 999999))
 
-        return redirect(url_for('routes.login'))
+        msg = Message("Confirm your email", recipients=[email])
+        msg.body = f"Your confirmation code: {confirmation_code}"
+        mail.send(msg)
+
+        session['pending_registration'] = {
+            'email': email,
+            'password': bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+            'code': confirmation_code
+        }
+
+        flash("A confirmation code has been sent to your email.", "info")
+        return redirect(url_for('routes.confirm_email'))
 
     return render_template('register.html')
 
@@ -49,6 +60,10 @@ def login():
         if not user:
             return "User not found!", 404
 
+        if user[4] == 0:
+            flash("Your email is not confirmed. Please check your email.", "error")
+            return redirect(url_for('routes.login'))
+
         hashed_password = user[2]
         if bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
             session['user_email'] = email
@@ -57,6 +72,7 @@ def login():
             return "Invalid password!", 401
 
     return render_template('login.html')
+
 
 
 @routes.route('/logout')
@@ -172,8 +188,7 @@ def history():
     return render_template('history.html', categories=categories)
 
 
-
-@routes.route('/undo-spending-ajax', methods = ['POST'])
+@routes.route('/undo-spending-ajax', methods=['POST'])
 def undo_spending_ajax():
     if 'user_email' not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 403
@@ -193,3 +208,32 @@ def undo_spending_ajax():
         return jsonify({"status": "success", "message": "Last spending undone successfully"})
     else:
         return jsonify({"status": "error", "message": "Category not found, cannot undo"}), 400
+
+
+@routes.route('/confirm-email', methods=['GET', 'POST'])
+def confirm_email():
+    if request.method == 'POST':
+        entered_code = request.form['code']
+        pending_data = session.get('pending_registration')
+
+        if not pending_data:
+            flash("No registration data found. Please register again.", "error")
+            return redirect(url_for('routes.register'))
+
+        if entered_code == pending_data['code']:
+
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO users (email, password, confirmed) VALUES (?, ?, 1)',
+                           (pending_data['email'], pending_data['password']))
+            conn.commit()
+            conn.close()
+
+            session.pop('pending_registration', None)
+
+            flash("Your email has been confirmed. You can now log in!", "success")
+            return redirect(url_for('routes.login'))
+        else:
+            flash("Invalid confirmation code!", "error")
+
+    return render_template('confirm_email.html')

@@ -9,13 +9,14 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            categories TEXT DEFAULT '{}'
-        )
-    ''')
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                categories TEXT DEFAULT '{}',
+                confirmed INTEGER DEFAULT 0
+            )
+        ''')
     conn.commit()
     conn.close()
 
@@ -44,3 +45,11 @@ def get_categories(email):
     row = cursor.fetchone()
     conn.close()
     return json.loads(row[0]) if row and row[0] else {}
+
+
+def confirm_user_email(email):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('UPDATE users SET confirmed = 1 WHERE email = ?', (email,))
+    conn.commit()
+    conn.close()
