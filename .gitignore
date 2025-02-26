@@ -10,3 +10,5 @@ app/flask_session/
 
 .idea/
 .vscode/
+
+.env

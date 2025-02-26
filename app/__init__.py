@@ -14,17 +14,14 @@ def create_app():
 
     mail.init_app(app)
 
-    # Настройки сессий
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_FILE_DIR'] = os.path.join(os.path.dirname(__file__), 'flask_session')
 
     Session(app)
 
-    # Инициализация базы данных
     with app.app_context():
         init_db()
 
-    # Регистрация маршрутов
     from app.routes import routes
     app.register_blueprint(routes)
 
