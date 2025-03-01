@@ -53,3 +53,11 @@ def confirm_user_email(email):
     cursor.execute('UPDATE users SET confirmed = 1 WHERE email = ?', (email,))
     conn.commit()
     conn.close()
+
+
+def update_user_password(email, new_hashed_password):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('UPDATE users SET password = ? WHERE email = ?', (new_hashed_password, email))
+    conn.commit()
+    conn.close()

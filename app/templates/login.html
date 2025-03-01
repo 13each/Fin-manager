@@ -7,7 +7,16 @@
 </head>
 <body>
     <h1>Login</h1>
-    <form method="POST" action="/login">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('routes.login') }}">
         <label for="email">Email:</label><br>
         <input type="email" id="email" name="email" required><br><br>
 
@@ -17,6 +26,7 @@
         <button type="submit">Login</button>
     </form>
     <br>
+    <p><a href="{{ url_for('routes.reset_password_request') }}">Forgot password?</a></p>
     <p>Don't have an account? <a href="{{ url_for('routes.register') }}">Register here</a></p>
 </body>
 </html>

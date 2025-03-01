@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
-from app.models import get_user_by_email, update_categories, get_categories
+from app.models import get_user_by_email, update_categories, get_categories, update_user_password
 import bcrypt
 import random
 from flask_mail import Message
@@ -237,3 +237,58 @@ def confirm_email():
             flash("Invalid confirmation code!", "error")
 
     return render_template('confirm_email.html')
+
+
+@routes.route('/reset-password-request', methods=['GET', 'POST'])
+def reset_password_request():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = get_user_by_email(email)
+        if not user:
+            flash("No user found with that email.", "error")
+            return redirect(url_for('routes.reset_password_request'))
+
+        reset_code = str(random.randint(100000, 999999))
+
+        msg = Message("Password Reset Request", recipients=[email])
+        msg.body = f"Your password reset code is: {reset_code}"
+        mail.send(msg)
+
+        session['password_reset'] = {
+            'email': email,
+            'code': reset_code
+        }
+        flash("A password reset code has been sent to your email.", "info")
+        return redirect(url_for('routes.reset_password'))
+    return render_template('reset_password_request.html')
+
+
+@routes.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'POST':
+        entered_code = request.form['code']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+
+        if new_password != confirm_password:
+            flash("Passwords do not match!", "error")
+            return redirect(url_for('routes.reset_password'))
+
+        reset_data = session.get('password_reset')
+        if not reset_data:
+            flash("Reset data not found. Please request a new code.", "error")
+            return redirect(url_for('routes.reset_password_request'))
+
+        if entered_code != reset_data['code']:
+            flash("Invalid reset code. Please try again.", "error")
+            return redirect(url_for('routes.reset_password'))
+
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        update_user_password(reset_data['email'], hashed_password)
+
+        session.pop('password_reset', None)
+
+        flash("Password successfully updated. You can now log in.", "success")
+        return redirect(url_for('routes.login'))
+
+    return render_template('reset_password.html')
