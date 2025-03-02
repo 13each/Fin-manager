@@ -57,22 +57,18 @@ def login():
         password = request.form['password']
 
         user = get_user_by_email(email)
-        if not user:
-            return "User not found!", 404
+        if not user or not bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
+            flash("Invalid mail or password", "error")
+            return redirect(url_for('routes.login'))
 
         if user[4] == 0:
             flash("Your email is not confirmed. Please check your email.", "error")
             return redirect(url_for('routes.login'))
 
-        hashed_password = user[2]
-        if bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
-            session['user_email'] = email
-            return redirect(url_for('routes.home'))
-        else:
-            return "Invalid password!", 401
+        session['user_email'] = email
+        return redirect(url_for('routes.home'))
 
     return render_template('login.html')
-
 
 
 @routes.route('/logout')
