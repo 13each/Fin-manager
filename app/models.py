@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import json
+import datetime
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
 
@@ -8,15 +9,26 @@ DB_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                categories TEXT DEFAULT '{}',
-                confirmed INTEGER DEFAULT 0
-            )
-        ''')
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            confirmed INTEGER DEFAULT 0
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS spending (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER UNIQUE NOT NULL,
+            current_categories TEXT DEFAULT '{}',
+            monthly_history TEXT DEFAULT '[]',
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -33,7 +45,14 @@ def get_user_by_email(email):
 def update_categories(email, categories):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('UPDATE users SET categories = ? WHERE email = ?', (json.dumps(categories), email))
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return
+    user_id = row[0]
+    cursor.execute('UPDATE spending SET current_categories = ? WHERE user_id = ?',
+                   (json.dumps(categories), user_id))
     conn.commit()
     conn.close()
 
@@ -41,7 +60,13 @@ def update_categories(email, categories):
 def get_categories(email):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('SELECT categories FROM users WHERE email = ?', (email,))
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return {}
+    user_id = row[0]
+    cursor.execute("SELECT current_categories FROM spending WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     conn.close()
     return json.loads(row[0]) if row and row[0] else {}
@@ -61,3 +86,54 @@ def update_user_password(email, new_hashed_password):
     cursor.execute('UPDATE users SET password = ? WHERE email = ?', (new_hashed_password, email))
     conn.commit()
     conn.close()
+
+
+def archive_monthly_spending():
+    now = datetime.datetime.now()
+    year = now.year
+    month = now.month
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, current_categories, monthly_history FROM spending")
+    records = cursor.fetchall()
+
+    for rec in records:
+        spending_id, current_json, history_json = rec
+        current_categories = json.loads(current_json) if current_json else {}
+        monthly_history = json.loads(history_json) if history_json else []
+
+        snapshot = {
+            "year": year,
+            "month": month,
+            "categories": current_categories
+        }
+        monthly_history.append(snapshot)
+        if len(monthly_history) > 12:
+            monthly_history = monthly_history[-12:]
+
+        for cat, data in current_categories.items():
+            data["spent"] = 0
+
+        cursor.execute(
+            "UPDATE spending SET current_categories = ?, monthly_history = ? WHERE id = ?",
+            (json.dumps(current_categories), json.dumps(monthly_history), spending_id)
+        )
+
+    conn.commit()
+    conn.close()
+
+
+def get_monthly_history(email):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return []
+    user_id = row[0]
+    cursor.execute("SELECT monthly_history FROM spending WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return json.loads(row[0]) if row and row[0] else []

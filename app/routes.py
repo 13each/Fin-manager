@@ -1,11 +1,11 @@
 import sqlite3
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
-from app.models import get_user_by_email, update_categories, get_categories, update_user_password
+from app.models import (get_user_by_email, update_categories, get_categories, update_user_password,
+                        get_monthly_history, archive_monthly_spending, DB_PATH)
 import bcrypt
 import random
 from flask_mail import Message
 from app import mail
-from app.models import DB_PATH
 
 routes = Blueprint('routes', __name__)
 
@@ -61,7 +61,7 @@ def login():
             flash("Invalid mail or password", "error")
             return redirect(url_for('routes.login'))
 
-        if user[4] == 0:
+        if user[3] == 0:
             flash("Your email is not confirmed. Please check your email.", "error")
             return redirect(url_for('routes.login'))
 
@@ -179,9 +179,8 @@ def spending_chart():
 def history():
     if 'user_email' not in session:
         return redirect(url_for('routes.login'))
-
-    categories = get_categories(session['user_email'])
-    return render_template('history.html', categories=categories)
+    history_data = get_monthly_history(session['user_email'])
+    return render_template('history.html', history=history_data)
 
 
 @routes.route('/undo-spending-ajax', methods=['POST'])
@@ -189,7 +188,7 @@ def undo_spending_ajax():
     if 'user_email' not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 403
 
-    last_spending = session['last_spending']
+    last_spending = session.get('last_spending')
     if not last_spending:
         return jsonify({"status": "error", "message": "No spending to undo"}), 400
 
@@ -217,11 +216,13 @@ def confirm_email():
             return redirect(url_for('routes.register'))
 
         if entered_code == pending_data['code']:
-
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
             cursor.execute('INSERT INTO users (email, password, confirmed) VALUES (?, ?, 1)',
                            (pending_data['email'], pending_data['password']))
+            user_id = cursor.lastrowid
+            cursor.execute('INSERT INTO spending (user_id, current_categories, monthly_history) VALUES (?, ?, ?)',
+                           (user_id, '{}', '[]'))
             conn.commit()
             conn.close()
 
