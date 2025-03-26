@@ -180,7 +180,71 @@ def history():
     if 'user_email' not in session:
         return redirect(url_for('routes.login'))
     history_data = get_monthly_history(session['user_email'])
-    return render_template('history.html', history=history_data)
+
+    summary_list = []
+    for snapshot in history_data:
+        year = snapshot.get("year")
+        month = snapshot.get("month")
+        categories = snapshot.get("categories", {})
+        total_spent = 0
+        total_limit = 0
+        for cat, data in categories.items():
+            total_spent += data.get("spent", 0)
+            total_limit += data.get("limit", 0)
+        total_saved = total_limit - total_spent
+        if total_saved < 0:
+            total_saved = 0
+        summary_list.append({
+            "year": year,
+            "month": month,
+            "total_spent": total_spent,
+            "total_saved": total_saved
+        })
+    summary_list.sort(key=lambda x: (x["year"], x["month"]), reverse=True)
+    return render_template('history.html', summaries=summary_list)
+
+
+@routes.route('/history/<int:year>/<int:month>')
+def history_detail(year, month):
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+
+    history_data = get_monthly_history(session['user_email'])
+    snapshot = next((s for s in history_data if s.get("year") == year and s.get("month") == month), None)
+    if not snapshot:
+        flash("No data found for the selected month.", "error")
+        return redirect(url_for('routes.history'))
+
+    data = []
+    bgColors = []
+    categoryLabels = []
+    colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FFA07A', '#8A2BE2']
+
+    categories = snapshot.get("categories", {})
+    for i, (cat, catData) in enumerate(categories.items()):
+        limit = catData.get("limit", 0)
+        spent = catData.get("spent", 0)
+        if limit <= 0:
+            continue
+        if spent > limit:
+            spent = limit
+        remaining = limit - spent
+
+        data.append(spent)
+        data.append(remaining)
+
+        color = colors[i % len(colors)]
+        bgColors.append(color)
+        bgColors.append('#e0e0e0')
+
+        categoryLabels.append(cat)
+
+    chart_data = {
+        "data": data,
+        "backgroundColors": bgColors,
+        "categoryLabels": categoryLabels
+    }
+    return render_template('spending_chart.html', chart_data=chart_data, year=year, month=month)
 
 
 @routes.route('/undo-spending-ajax', methods=['POST'])

@@ -2,6 +2,7 @@ import sqlite3
 import os
 import json
 import datetime
+import copy
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
 
@@ -106,7 +107,7 @@ def archive_monthly_spending():
         snapshot = {
             "year": year,
             "month": month,
-            "categories": current_categories
+            "categories": copy.deepcopy(current_categories)
         }
         monthly_history.append(snapshot)
         if len(monthly_history) > 12:
