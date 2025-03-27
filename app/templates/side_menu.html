@@ -1,0 +1,94 @@
+<style>
+  .side-menu {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 50px;
+    height: 50px;
+    background-color: #4682B4;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .side-menu .menu-icon {
+    width: 25px;
+    height: 20px;
+    position: relative;
+  }
+  .side-menu .menu-icon span {
+    display: block;
+    background: #fff;
+    height: 3px;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    transition: 0.3s;
+  }
+  .side-menu .menu-icon span:nth-child(1) {
+    top: 0;
+  }
+  .side-menu .menu-icon span:nth-child(2) {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .side-menu .menu-icon span:nth-child(3) {
+    bottom: 0;
+  }
+
+  .side-menu-container {
+    position: fixed;
+    top: 0;
+    left: -220px;
+    width: 220px;
+    height: 100%;
+    background-color: #4682B4;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+    transition: left 0.3s ease;
+    z-index: 1000;
+    padding-top: 70px;
+  }
+  .side-menu-container.active {
+    left: 0;
+  }
+  .side-menu-container a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 15px 20px;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+  }
+  .side-menu-container a:hover {
+    background-color: rgba(255,255,255,0.1);
+  }
+</style>
+
+<div class="side-menu" id="sideMenu">
+  <div class="menu-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<div class="side-menu-container" id="sideMenuContainer">
+  <a href="{{ url_for('routes.home') }}">Your spendings</a>
+  <a href="{{ url_for('routes.view_categories') }}">Categories</a>
+  <a href="{{ url_for('routes.add_spending') }}">New spending</a>
+  <a href="{{ url_for('routes.history') }}">History</a>
+</div>
+
+<script>
+  const sideMenu = document.getElementById('sideMenu');
+  const sideMenuContainer = document.getElementById('sideMenuContainer');
+
+  sideMenu.addEventListener('mouseenter', function(){
+    sideMenuContainer.classList.add('active');
+  });
+  sideMenuContainer.addEventListener('mouseleave', function(){
+    sideMenuContainer.classList.remove('active');
+  });
+</script>

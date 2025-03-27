@@ -9,12 +9,12 @@ from app import mail
 
 routes = Blueprint('routes', __name__)
 
-
 @routes.route('/')
 def home():
     if 'user_email' in session:
-        return f"Hello, {session['user_email']}! Welcome to Fin Manager."
-    return "Hello, Fin Manager! Please log in or register."
+        categories = get_categories(session['user_email'])
+        return render_template('spending_chart.html', categories=categories)
+    return render_template('index.html')
 
 
 @routes.route('/register', methods=['GET', 'POST'])
@@ -58,7 +58,7 @@ def login():
 
         user = get_user_by_email(email)
         if not user or not bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
-            flash("Invalid mail or password", "error")
+            flash("Invalid email or password", "error")
             return redirect(url_for('routes.login'))
 
         if user[3] == 0:
@@ -89,13 +89,14 @@ def add_category():
         except ValueError:
             flash("Invalid limit value!", "error")
             return redirect(url_for('routes.add_category'))
+        color_input = request.form.get('color') or "#000000"
         categories = get_categories(session['user_email'])
 
         if name in categories:
             flash(f"Category {name} already exists!", "error")
             return redirect(url_for('routes.add_category'))
 
-        categories[name] = {"limit": limit, "spent": 0}
+        categories[name] = {"limit": limit, "spent": 0, "color": color_input}
         update_categories(session['user_email'], categories)
         flash("Category added successfully", "success")
         return redirect(url_for('routes.add_category'))
@@ -126,53 +127,12 @@ def add_spending():
             return redirect(url_for('routes.add_spending'))
 
         session['last_spending'] = {'category': category, 'amount': amount}
-
         categories[category]['spent'] += amount
         update_categories(session['user_email'], categories)
         flash("Spending added successfully", "success")
         return redirect(url_for('routes.add_spending'))
 
     return render_template('add_spending.html', categories=categories)
-
-
-@routes.route('/spending-chart')
-def spending_chart():
-    if 'user_email' not in session:
-        return redirect(url_for('routes.login'))
-
-    categories_data = get_categories(session['user_email'])
-
-    data = []
-    bgColors = []
-    categoryLabels = []
-
-    colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FFA07A', '#8A2BE2']
-
-    for i, (cat, catData) in enumerate(categories_data.items()):
-        limit = catData.get("limit", 0)
-        spent = catData.get("spent", 0)
-        if limit <= 0:
-            continue
-        if spent > limit:
-            spent = limit
-        remaining = limit - spent
-
-        data.append(spent)
-        data.append(remaining)
-
-        color = colors[i % len(colors)]
-        bgColors.append(color)
-        bgColors.append('#e0e0e0')
-
-        categoryLabels.append(cat)
-
-    chart_data = {
-        "data": data,
-        "backgroundColors": bgColors,
-        "categoryLabels": categoryLabels
-    }
-
-    return render_template('spending_chart.html', chart_data=chart_data)
 
 
 @routes.route('/history')
@@ -291,7 +251,6 @@ def confirm_email():
             conn.close()
 
             session.pop('pending_registration', None)
-
             flash("Your email has been confirmed. You can now log in!", "success")
             return redirect(url_for('routes.login'))
         else:
@@ -315,10 +274,7 @@ def reset_password_request():
         msg.body = f"Your password reset code is: {reset_code}"
         mail.send(msg)
 
-        session['password_reset'] = {
-            'email': email,
-            'code': reset_code
-        }
+        session['password_reset'] = {'email': email, 'code': reset_code}
         flash("A password reset code has been sent to your email.", "info")
         return redirect(url_for('routes.reset_password'))
     return render_template('reset_password_request.html')
@@ -353,3 +309,62 @@ def reset_password():
         return redirect(url_for('routes.login'))
 
     return render_template('reset_password.html')
+
+
+@routes.route('/categories', methods=['GET'])
+def view_categories():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+    user_categories = get_categories(session['user_email'])
+    return render_template('categories.html', categories=user_categories)
+
+
+@routes.route('/update-category', methods=['POST'])
+def update_category():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+    old_name = request.form.get('old_name')
+    new_name = request.form.get('new_name')
+    try:
+        new_limit = float(request.form.get('new_limit'))
+    except ValueError:
+        flash("Invalid limit value!", "error")
+        return redirect(url_for('routes.view_categories'))
+
+    new_color = request.form.get('new_color') or "#000000"
+
+    user_categories = get_categories(session['user_email'])
+    if old_name not in user_categories:
+        flash("Category not found!", "error")
+        return redirect(url_for('routes.view_categories'))
+
+    if new_name != old_name:
+        if new_name in user_categories:
+            flash("New category name already exists!", "error")
+            return redirect(url_for('routes.view_categories'))
+        cat_data = user_categories.pop(old_name)
+        cat_data['limit'] = new_limit
+        cat_data['color'] = new_color
+        user_categories[new_name] = cat_data
+    else:
+        user_categories[old_name]['limit'] = new_limit
+        user_categories[old_name]['color'] = new_color
+
+    update_categories(session['user_email'], user_categories)
+    flash("Category updated successfully!", "success")
+    return redirect(url_for('routes.view_categories'))
+
+
+@routes.route('/delete-category', methods=['POST'])
+def delete_category():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+    category_name = request.form.get('category_name')
+    user_categories = get_categories(session['user_email'])
+    if category_name in user_categories:
+        user_categories.pop(category_name)
+        update_categories(session['user_email'], user_categories)
+        flash("Category deleted successfully!", "success")
+    else:
+        flash("Category not found!", "error")
+    return redirect(url_for('routes.view_categories'))

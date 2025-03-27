@@ -1,120 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Spending Chart</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    #spendingChart {
-      max-width: 800px;
-      max-height: 800px;
-      margin: 0 auto;
-    }
-    .chart-container {
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #FFFFFF;
+      color: #4682B4;
+      margin: 20px;
       position: relative;
-      width: 100%;
-      height: 0;
-      padding-bottom: 100%;
     }
-    .chart-container canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
+    h1 { text-align: center; }
+    .chart-wrapper {
+      position: relative;
+      width: 500px;
+      margin: 40px auto;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+    .legend {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 250px;
+      border: 2px solid #4682B4;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: #fff;
+      text-align: left;
+      font-size: 18px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      max-height: 400px;
+    }
+    .legend-list {
+      overflow-y: auto;
+      max-height: 240px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+    }
+    .legend-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    /* Кнопки с синим фоном и белым текстом */
+    .legend-buttons button {
+      font-size: 18px;
+      padding: 5px 10px;
+      border: 1px solid #4682B4;
+      border-radius: 4px;
+      background-color: #4682B4;
+      color: #fff;
+      cursor: pointer;
+    }
+    .legend-buttons button:hover { background-color: #3a6b93; }
+    .legend-list::-webkit-scrollbar { width: 6px; }
+    .legend-list::-webkit-scrollbar-thumb {
+      background-color: #4682B4;
+      border-radius: 3px;
     }
   </style>
 </head>
 <body>
-  <h1>Your Spending Chart</h1>
-  <div class="chart-container">
-    <canvas id="spendingChart"></canvas>
+  {% include 'side_menu.html' %}
+  <h1>Spending Chart</h1>
+  <div class="chart-wrapper" id="chart-wrapper">
+    <svg id="chart" viewBox="-10 -10 520 520"></svg>
+  </div>
+  <a href="{{ url_for('routes.home') }}">Back to Home</a>
+
+  <div class="legend" id="legend">
+    <div class="legend-list" id="legend-list"></div>
+    <div class="legend-buttons">
+      <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">Categories</button>
+      <button id="toggleLegend">...</button>
+    </div>
   </div>
 
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
-    var chartData = {{ chart_data | tojson }};
+    const categoriesData = {{ categories | tojson }};
 
-    const categorySeparatorPlugin = {
-      id: 'categorySeparatorPlugin',
-      afterDraw: (chart, args, options) => {
-        const ctx = chart.ctx;
-        const meta = chart.getDatasetMeta(0);
-        const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-        const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-        const outerRadius = meta.outerRadius;
-        const groupCount = meta.data.length / 2;
+    let categoryNames = Object.keys(categoriesData).filter(cat => categoriesData[cat].limit > 0);
 
-        for (let group = 1; group < groupCount; group++) {
-          let index = group * 2;
-          if (index < meta.data.length) {
-            let segment = meta.data[index];
-            let angle = segment.startAngle;
-            let x = centerX + outerRadius * Math.cos(angle);
-            let y = centerY + outerRadius * Math.sin(angle);
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(x, y);
-            ctx.lineWidth = options.thickness || 6;
-            ctx.strokeStyle = options.color || '#000000';
-            ctx.stroke();
-            ctx.restore();
-          }
+    const sortedCategoryNames = categoryNames.slice().sort((a, b) => {
+      const ratioA = categoriesData[a].spent / categoriesData[a].limit;
+      const ratioB = categoriesData[b].spent / categoriesData[b].limit;
+      return ratioA - ratioB;
+    });
+
+    function interleaveArray(arr) {
+      const result = [];
+      let left = 0, right = arr.length - 1;
+      while (left <= right) {
+        if (left === right) {
+          result.push(arr[left]);
+        } else {
+          result.push(arr[left]);
+          result.push(arr[right]);
         }
+        left++;
+        right--;
       }
-    };
+      return result;
+    }
+    categoryNames = interleaveArray(sortedCategoryNames);
 
-    Chart.register(categorySeparatorPlugin);
+    const viewWidth = 500, viewHeight = 500, offset = 10;
+    const centerX = viewWidth / 2 + offset;
+    const centerY = viewHeight / 2 + offset;
+    const radius = Math.min(viewWidth, viewHeight) / 2;
 
-    var ctx = document.getElementById('spendingChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        datasets: [{
-          data: chartData.data,
-          backgroundColor: chartData.backgroundColors,
-          borderWidth: 1,
-          borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '50%',
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                var index = context.dataIndex;
-                var groupIndex = Math.floor(index / 2);
-                var spent = context.dataset.data[groupIndex * 2];
-                var remaining = context.dataset.data[groupIndex * 2 + 1];
-                var limit = spent + remaining;
-                var catName = chartData.categoryLabels[groupIndex];
-                if (index % 2 === 0) {
-                  var percentSpent = limit > 0 ? (spent / limit * 100).toFixed(1) : 0;
-                  return catName + ": Spent " + spent + " of " + limit + " (" + percentSpent + "%)";
-                } else {
-                  var percentRemaining = limit > 0 ? (remaining / limit * 100).toFixed(1) : 0;
-                  return catName + ": Remaining " + remaining + " of " + limit + " (" + percentRemaining + "%)";
-                }
-              }
-            }
-          },
-          legend: {
-            display: false
-          }
-        }
-      },
-      plugins: [{
-        id: 'categorySeparatorPlugin',
-        thickness: 6,
-        color: '#000000'
-      }]
+    const svg = d3.select("#chart")
+                  .attr("width", viewWidth)
+                  .attr("height", viewHeight)
+                  .append("g")
+                  .attr("transform", `translate(${centerX}, ${centerY})`);
+
+    const color = cat => categoriesData[cat].color || "#000000";
+
+    const pie = d3.pie()
+                  .value(cat => categoriesData[cat].limit)
+                  .sort(null);
+    const arcs = pie(categoryNames);
+
+    svg.selectAll(".arcSpent")
+       .data(arcs)
+       .enter()
+       .append("path")
+       .attr("class", "arcSpent")
+       .attr("fill", d => color(d.data))
+       .attr("d", d3.arc().innerRadius(0).outerRadius(0))
+       .transition()
+       .duration(1000)
+       .attrTween("d", function(d) {
+         const finalRadius = radius * Math.min(categoriesData[d.data].spent / categoriesData[d.data].limit, 1);
+         const interpolate = d3.interpolate(0, finalRadius);
+         const arc = d3.arc().innerRadius(0);
+         return function(t) {
+           return arc.outerRadius(interpolate(t))(d);
+         };
+       });
+
+    svg.selectAll(".arcOutline")
+       .data(arcs.filter(d => categoriesData[d.data].spent <= categoriesData[d.data].limit))
+       .enter()
+       .append("path")
+       .attr("class", "arcOutline")
+       .attr("fill", "none")
+       .attr("stroke", "gray")
+       .attr("stroke-width", 4)
+       .attr("d", d3.arc().innerRadius(0).outerRadius(radius));
+
+    svg.selectAll(".arcOverspend")
+       .data(arcs.filter(d => categoriesData[d.data].spent > categoriesData[d.data].limit))
+       .enter()
+       .append("path")
+       .attr("class", "arcOverspend")
+       .attr("fill", "none")
+       .attr("stroke", "red")
+       .attr("stroke-width", 4)
+       .attr("d", d3.arc().innerRadius(radius * 0.005).outerRadius(radius));
+
+    const legendList = d3.select("#legend-list");
+    const legendItems = legendList.selectAll(".legend-item")
+      .data(categoryNames)
+      .enter()
+      .append("div")
+      .attr("class", "legend-item")
+      .style("opacity", 0)
+      .style("transform", "translateY(-20px)");
+
+    legendItems.append("div")
+      .attr("class", "legend-color")
+      .style("background-color", d => color(d));
+
+    legendItems.append("div")
+      .text(d => {
+        const catData = categoriesData[d];
+        return `${d}: ${catData.spent} / ${catData.limit}`;
+      });
+
+    legendItems.transition()
+      .duration(500)
+      .delay((d, i) => i * 200)
+      .style("opacity", 1)
+      .style("transform", "translateY(0px)");
+
+    const toggleBtn = document.getElementById("toggleLegend");
+    const legendListContainer = document.getElementById("legend-list");
+    if (categoryNames.length <= 6) {
+      toggleBtn.style.display = "none";
+    }
+    let expanded = false;
+    toggleBtn.addEventListener("click", function() {
+      expanded = !expanded;
+      if(expanded) {
+        legendListContainer.style.maxHeight = "none";
+        toggleBtn.textContent = "...";
+      } else {
+        legendListContainer.style.maxHeight = "240px";
+        toggleBtn.textContent = "...";
+      }
     });
   </script>
-
-  <br>
-  <a href="{{ url_for('routes.home') }}">Back to Home</a>
 </body>
 </html>
-
