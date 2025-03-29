@@ -9,6 +9,7 @@ from app import mail
 
 routes = Blueprint('routes', __name__)
 
+
 @routes.route('/')
 def home():
     if 'user_email' in session:
@@ -116,23 +117,23 @@ def add_spending():
             amount = float(request.form['amount'])
         except ValueError:
             flash("Invalid amount value", "error")
-            return redirect(url_for('routes.add_spending'))
+            return redirect(url_for('routes.home'))
 
         if amount < 0:
             flash("Spending amount cannot be negative", "error")
-            return redirect(url_for('routes.add_spending'))
+            return redirect(url_for('routes.home'))
 
         if category not in categories:
             flash(f"Category {category} does not exist!", "error")
-            return redirect(url_for('routes.add_spending'))
+            return redirect(url_for('routes.home'))
 
         session['last_spending'] = {'category': category, 'amount': amount}
         categories[category]['spent'] += amount
         update_categories(session['user_email'], categories)
         flash("Spending added successfully", "success")
-        return redirect(url_for('routes.add_spending'))
+        return redirect(url_for('routes.home'))
 
-    return render_template('add_spending.html', categories=categories)
+    return redirect(url_for('routes.home'))
 
 
 @routes.route('/history')

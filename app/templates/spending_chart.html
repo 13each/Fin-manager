@@ -6,12 +6,21 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #FFFFFF;
       color: #4682B4;
       margin: 20px;
       position: relative;
     }
-    h1 { text-align: center; }
+    h1 {
+      display: inline-block;
+      text-align: center;
+      padding: 5px 10px;
+      border: 1px solid #4682B4;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #87CEEB, #4682B4);
+      color: #fff;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
     .chart-wrapper {
       position: relative;
       width: 500px;
@@ -37,6 +46,7 @@
       display: flex;
       flex-direction: column;
       max-height: 400px;
+      z-index: 1500;
     }
     .legend-list {
       overflow-y: auto;
@@ -60,7 +70,6 @@
       justify-content: space-between;
       margin-top: 10px;
     }
-    /* Кнопки с синим фоном и белым текстом */
     .legend-buttons button {
       font-size: 18px;
       padding: 5px 10px;
@@ -76,15 +85,164 @@
       background-color: #4682B4;
       border-radius: 3px;
     }
+    .new-spending-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 15px 30px;
+      background-color: #4682B4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      z-index: 1001;
+    }
+    .new-spending-button:hover {
+      background-color: #3a6b93;
+    }
+    #newSpendingModal {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      padding: 20px;
+      background: #fff;
+      border: 2px solid #4682B4;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 2000;
+      transform: translateY(100%);
+      opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    #newSpendingModal.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    #newSpendingModal h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+      color: #4682B4;
+    }
+    #newSpendingModal label {
+      display: block;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .custom-select {
+      position: relative;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #fff;
+      margin-top: 5px;
+    }
+    .custom-select .selected-option {
+      padding: 8px;
+    }
+    .custom-select .options-container {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border: 1px solid #ccc;
+      background: #fff;
+      z-index: 10;
+      max-height: 150px;
+      overflow-y: auto;
+      display: none;
+    }
+    .custom-select.open .options-container {
+      display: block;
+    }
+    .custom-select .option {
+      padding: 8px;
+    }
+    .custom-select .option:hover {
+      background: #f0f0f0;
+    }
+    #newSpendingModal select,
+    #newSpendingModal input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #newSpendingModal button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4682B4;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    #newSpendingModal button:hover {
+      background-color: #3a6b93;
+    }
+    #newSpendingModal .close-btn {
+      background-color: #fff;
+      color: #4682B4;
+      border: 1px solid #4682B4;
+      margin-top: 10px;
+    }
+    #successMessage {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #87CEEB;
+      color: #fff;
+      padding: 15px 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(100%);
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      z-index: 1500;
+    }
+    #successMessage.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
+  {% include 'background.html' %}
   {% include 'side_menu.html' %}
-  <h1>Spending Chart</h1>
-  <div class="chart-wrapper" id="chart-wrapper">
-    <svg id="chart" viewBox="-10 -10 520 520"></svg>
+
+  {% with messages = get_flashed_messages(category_filter=["success"]) %}
+    {% if messages %}
+      <div id="successMessage" class="show">{{ messages[0] }}</div>
+    {% else %}
+      <div id="successMessage"></div>
+    {% endif %}
+  {% endwith %}
+
+  <div style="text-align: center;">
+    <h1>Spending Chart</h1>
   </div>
-  <a href="{{ url_for('routes.home') }}">Back to Home</a>
+
+  <div class="chart-wrapper" id="chart-wrapper">
+    <svg id="chart" viewBox="-10 -10 520 520">
+      <defs>
+        <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+          <feOffset dx="1" dy="1" result="offsetblur"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+    </svg>
+  </div>
 
   <div class="legend" id="legend">
     <div class="legend-list" id="legend-list"></div>
@@ -94,45 +252,123 @@
     </div>
   </div>
 
+  <button class="new-spending-button" id="newSpendingBtn">New Spending</button>
+
+  <div id="newSpendingModal">
+    <h2>New Spending</h2>
+    <form id="newSpendingForm" method="POST" action="{{ url_for('routes.add_spending') }}">
+      <label for="customSelect">Category:</label>
+      <div id="customSelect" class="custom-select">
+        <div class="selected-option">Select category</div>
+        <div class="options-container">
+          {% for cat, data in categories.items() %}
+            <div class="option" data-value="{{ cat }}">{{ cat }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <input type="hidden" name="category" id="ns-category" required>
+      <label for="ns-amount">Amount:</label>
+      <input type="number" id="ns-amount" name="amount" step="0.01" required>
+      <button type="submit">Add</button>
+      <button type="button" class="close-btn" id="closeModalBtn">Close</button>
+    </form>
+  </div>
+
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
-    const categoriesData = {{ categories | tojson }};
+    const newSpendingBtn = document.getElementById("newSpendingBtn");
+    const newSpendingModal = document.getElementById("newSpendingModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
 
-    let categoryNames = Object.keys(categoriesData).filter(cat => categoriesData[cat].limit > 0);
-
-    const sortedCategoryNames = categoryNames.slice().sort((a, b) => {
-      const ratioA = categoriesData[a].spent / categoriesData[a].limit;
-      const ratioB = categoriesData[b].spent / categoriesData[b].limit;
-      return ratioA - ratioB;
+    newSpendingBtn.addEventListener("click", function() {
+      newSpendingModal.classList.add("show");
     });
 
-    function interleaveArray(arr) {
+    closeModalBtn.addEventListener("click", function() {
+      newSpendingModal.classList.remove("show");
+    });
+
+    window.addEventListener("click", function(event) {
+      if (event.target === newSpendingModal) {
+        newSpendingModal.classList.remove("show");
+      }
+    });
+
+    const customSelect = document.getElementById('customSelect');
+    const selectedOption = customSelect.querySelector('.selected-option');
+    const optionsContainer = customSelect.querySelector('.options-container');
+    const hiddenInput = document.getElementById('ns-category');
+
+    customSelect.addEventListener('click', function(e) {
+      customSelect.classList.toggle('open');
+      e.stopPropagation();
+    });
+
+    const options = customSelect.querySelectorAll('.option');
+    options.forEach(option => {
+      option.addEventListener('click', function(e) {
+        const value = this.getAttribute('data-value');
+        selectedOption.textContent = this.textContent;
+        hiddenInput.value = value;
+        customSelect.classList.remove('open');
+        e.stopPropagation();
+      });
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!customSelect.contains(e.target)) {
+        customSelect.classList.remove('open');
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", function() {
+      const successMessage = document.getElementById("successMessage");
+      if (successMessage.classList.contains("show")) {
+        setTimeout(() => {
+          successMessage.classList.remove("show");
+        }, 3000);
+      }
+    });
+
+    function sanitizeId(str) {
+      return str.replace(/[^a-zA-Z0-9_-]/g, "");
+    }
+
+    let categoriesData = {{ categories | tojson }};
+    let categoryNames = Object.keys(categoriesData).filter(cat => categoriesData[cat].limit > 0);
+    function sortAndInterleave(data) {
+      let names = Object.keys(data).filter(cat => data[cat].limit > 0);
+      const sorted = names.slice().sort((a, b) => {
+        const ratioA = data[a].spent / data[a].limit;
+        const ratioB = data[b].spent / data[b].limit;
+        return ratioA - ratioB;
+      });
       const result = [];
-      let left = 0, right = arr.length - 1;
+      let left = 0, right = sorted.length - 1;
       while (left <= right) {
-        if (left === right) {
-          result.push(arr[left]);
-        } else {
-          result.push(arr[left]);
-          result.push(arr[right]);
+        if (left === right) result.push(sorted[left]);
+        else {
+          result.push(sorted[left]);
+          result.push(sorted[right]);
         }
         left++;
         right--;
       }
       return result;
     }
-    categoryNames = interleaveArray(sortedCategoryNames);
+    categoryNames = sortAndInterleave(categoriesData);
 
     const viewWidth = 500, viewHeight = 500, offset = 10;
     const centerX = viewWidth / 2 + offset;
     const centerY = viewHeight / 2 + offset;
-    const radius = Math.min(viewWidth, viewHeight) / 2;
+    const fullRadius = Math.min(viewWidth, viewHeight) / 2;
 
     const svg = d3.select("#chart")
                   .attr("width", viewWidth)
                   .attr("height", viewHeight)
                   .append("g")
-                  .attr("transform", `translate(${centerX}, ${centerY})`);
+                  .attr("transform", `translate(${centerX}, ${centerY})`)
+                  .style("filter", "url(#dropShadow)");
 
     const color = cat => categoriesData[cat].color || "#000000";
 
@@ -149,35 +385,28 @@
        .attr("fill", d => color(d.data))
        .attr("d", d3.arc().innerRadius(0).outerRadius(0))
        .transition()
-       .duration(1000)
+       .duration(1500)
+       .ease(d3.easeCubicInOut)
        .attrTween("d", function(d) {
-         const finalRadius = radius * Math.min(categoriesData[d.data].spent / categoriesData[d.data].limit, 1);
+         const finalRadius = fullRadius * Math.min(categoriesData[d.data].spent / categoriesData[d.data].limit, 1);
          const interpolate = d3.interpolate(0, finalRadius);
-         const arc = d3.arc().innerRadius(0);
+         const arc = d3.arc().innerRadius(0).cornerRadius(8);
          return function(t) {
            return arc.outerRadius(interpolate(t))(d);
          };
        });
 
     svg.selectAll(".arcOutline")
-       .data(arcs.filter(d => categoriesData[d.data].spent <= categoriesData[d.data].limit))
+       .data(arcs)
        .enter()
        .append("path")
        .attr("class", "arcOutline")
        .attr("fill", "none")
-       .attr("stroke", "gray")
-       .attr("stroke-width", 4)
-       .attr("d", d3.arc().innerRadius(0).outerRadius(radius));
-
-    svg.selectAll(".arcOverspend")
-       .data(arcs.filter(d => categoriesData[d.data].spent > categoriesData[d.data].limit))
-       .enter()
-       .append("path")
-       .attr("class", "arcOverspend")
-       .attr("fill", "none")
-       .attr("stroke", "red")
-       .attr("stroke-width", 4)
-       .attr("d", d3.arc().innerRadius(radius * 0.005).outerRadius(radius));
+       .attr("stroke", "rgba(100,100,100,0.8)")
+       .attr("stroke-width", 2.5)
+       .attr("stroke-linecap", "round")
+       .attr("stroke-linejoin", "round")
+       .attr("d", d3.arc().innerRadius(0).outerRadius(fullRadius));
 
     const legendList = d3.select("#legend-list");
     const legendItems = legendList.selectAll(".legend-item")
@@ -193,10 +422,7 @@
       .style("background-color", d => color(d));
 
     legendItems.append("div")
-      .text(d => {
-        const catData = categoriesData[d];
-        return `${d}: ${catData.spent} / ${catData.limit}`;
-      });
+      .text(d => `${d}: ${categoriesData[d].spent} / ${categoriesData[d].limit}`);
 
     legendItems.transition()
       .duration(500)
