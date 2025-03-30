@@ -7,16 +7,23 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
+      padding: 0 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #FFFFFF;
       color: #4682B4;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
     }
 
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      max-width: 80%;
+      height: auto;
+    }
     .register-container {
       background-color: #FFFFFF;
       border: 1px solid #E0E0E0;
@@ -26,33 +33,28 @@
       width: 350px;
       text-align: center;
     }
-
     .register-container h1 {
       margin-bottom: 20px;
       color: #4682B4;
     }
-
     .register-container form {
       display: flex;
       flex-direction: column;
     }
-
     .register-container input {
       padding: 12px;
       margin-bottom: 15px;
       border: 1px solid #E0E0E0;
       border-radius: 5px;
       font-size: 16px;
-      color: #4682B4;
-      background-color: #F9F9F9;
+      width: 100%;
+      box-sizing: border-box;
     }
-
     .register-container input:focus {
       outline: none;
       border-color: #87CEEB;
       box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
     }
-
     .register-container button {
       padding: 12px;
       border: none;
@@ -61,13 +63,10 @@
       color: #FFFFFF;
       font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-
     .register-container button:hover {
       background-color: #4682B4;
     }
-
     .alert {
       padding: 10px;
       margin-bottom: 15px;
@@ -83,7 +82,6 @@
       background-color: #f8d7da;
       color: #721c24;
     }
-
     .register-container .link {
       margin-top: 15px;
       font-size: 14px;
@@ -96,9 +94,12 @@
   </style>
 </head>
 <body>
+  {% include 'background.html' %}
+
+  <img class="logo" src="{{ url_for('static', filename='Name.png') }}" alt="Logo">
+
   <div class="register-container">
     <h1>Register</h1>
-
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -106,7 +107,6 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
-
     <form method="POST" action="{{ url_for('routes.register') }}">
       <input type="email" id="email" name="email" placeholder="Email" required>
       <input type="password" id="password" name="password" placeholder="Password" required>
@@ -116,5 +116,4 @@
     <a class="link" href="{{ url_for('routes.login') }}">Already have an account? Log in here</a>
   </div>
 </body>
-    {% include 'background.html' %}
 </html>
