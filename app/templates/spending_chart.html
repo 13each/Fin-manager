@@ -51,6 +51,7 @@
     .legend-list {
       overflow-y: auto;
       max-height: 240px;
+      transition: max-height 0.5s ease;
     }
     .legend-item {
       display: flex;
@@ -80,6 +81,10 @@
       cursor: pointer;
     }
     .legend-buttons button:hover { background-color: #3a6b93; }
+    #toggleLegend {
+      width: 40px;
+      text-align: center;
+    }
     .legend-list::-webkit-scrollbar { width: 6px; }
     .legend-list::-webkit-scrollbar-thumb {
       background-color: #4682B4;
@@ -248,7 +253,7 @@
     <div class="legend-list" id="legend-list"></div>
     <div class="legend-buttons">
       <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">Categories</button>
-      <button id="toggleLegend">...</button>
+      <button id="toggleLegend">−</button>
     </div>
   </div>
 
@@ -283,11 +288,9 @@
     newSpendingBtn.addEventListener("click", function() {
       newSpendingModal.classList.add("show");
     });
-
     closeModalBtn.addEventListener("click", function() {
       newSpendingModal.classList.remove("show");
     });
-
     window.addEventListener("click", function(event) {
       if (event.target === newSpendingModal) {
         newSpendingModal.classList.remove("show");
@@ -303,7 +306,6 @@
       customSelect.classList.toggle('open');
       e.stopPropagation();
     });
-
     const options = customSelect.querySelectorAll('.option');
     options.forEach(option => {
       option.addEventListener('click', function(e) {
@@ -314,7 +316,6 @@
         e.stopPropagation();
       });
     });
-
     document.addEventListener('click', function(e) {
       if (!customSelect.contains(e.target)) {
         customSelect.classList.remove('open');
@@ -435,16 +436,16 @@
     if (categoryNames.length <= 6) {
       toggleBtn.style.display = "none";
     }
-    let expanded = false;
+    let expanded = true;
     toggleBtn.addEventListener("click", function() {
-      expanded = !expanded;
       if(expanded) {
-        legendListContainer.style.maxHeight = "none";
-        toggleBtn.textContent = "...";
+        legendListContainer.style.maxHeight = "0px";
+        toggleBtn.textContent = "+";
       } else {
         legendListContainer.style.maxHeight = "240px";
-        toggleBtn.textContent = "...";
+        toggleBtn.textContent = "−";
       }
+      expanded = !expanded;
     });
   </script>
 </body>
