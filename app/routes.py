@@ -22,6 +22,9 @@ def home():
 
 @routes.route('/register', methods=['GET', 'POST'])
 def register():
+    if 'user_email' in session:
+        return redirect(url_for('routes.home'))
+
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -55,6 +58,9 @@ def register():
 
 @routes.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'user_email' in session:
+        return redirect(url_for('routes.home'))
+
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -284,6 +290,9 @@ def confirm_email():
 
 @routes.route('/reset-password-request', methods=['GET', 'POST'])
 def reset_password_request():
+    if 'user_email' in session:
+        return redirect(url_for('routes.home'))
+
     if request.method == 'POST':
         email = request.form['email']
         user = get_user_by_email(email)
@@ -305,6 +314,9 @@ def reset_password_request():
 
 @routes.route('/reset-password', methods=['GET', 'POST'])
 def reset_password():
+    if 'user_email' in session:
+        return redirect(url_for('routes.home'))
+
     if request.method == 'POST':
         entered_code = request.form['code']
         new_password = request.form['new_password']
