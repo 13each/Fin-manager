@@ -2,59 +2,112 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Spending History</title>
+  <title>History</title>
   <style>
-    table {
-      border-collapse: collapse;
-      width: 80%;
-      margin: 20px auto;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #f2f2f2;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
       text-align: center;
-      margin-top: 20px;
-    }
-    a {
-      text-decoration: none;
+      margin-bottom: 40px;
+      font-size: 36px;
       color: #4682B4;
     }
-    a:hover {
-      text-decoration: underline;
+    .summary-block {
+      border: 2px solid #87CEEB;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .summary-block div {
+      font-size: 20px;
+      color: #4682B4;
+    }
+    .view-button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #4682B4;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .view-button:hover {
+      background-color: #3a6b93;
+    }
+    .empty-message {
+      background: #87CEEB;
+      color: #fff;
+      padding: 20px 40px;
+      border-radius: 10px;
+      font-size: 24px;
+      text-align: center;
+      position: absolute;
+      left: 50%;
+      top: -100px;
+      transform: translateX(-50%);
+      opacity: 0;
+      animation: slideDown 1s forwards, slideUp 1s forwards 3s;
+    }
+    @keyframes slideDown {
+      from {
+        top: -100px;
+        opacity: 0;
+      }
+      to {
+        top: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+    @keyframes slideUp {
+      from {
+        top: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+      to {
+        top: -100px;
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>History of Monthly Spending</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Year</th>
-        <th>Month</th>
-        <th>Total Spent</th>
-        <th>Total Saved</th>
-        <th>Details</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in summaries %}
-      <tr>
-        <td>{{ item.year }}</td>
-        <td>{{ item.month }}</td>
-        <td>{{ item.total_spent }}</td>
-        <td>{{ item.total_saved }}</td>
-        <td><a href="{{ url_for('routes.history_detail', year=item.year, month=item.month) }}">View Chart</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <br>
-  <a href="{{ url_for('routes.home') }}">Back to Home</a>
+  {% include 'background.html' %}
+  {% include 'side_menu.html' %}
+
+  <h1>History</h1>
+  {% if summaries|length == 0 %}
+    <div class="empty-message">History is empty</div>
+  {% else %}
+    {% set monthNames = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"} %}
+    {% for summary in summaries %}
+      <div class="summary-block">
+        <div>{{ monthNames[summary.month] }} {{ summary.year }}</div>
+        <div>Spent: {{ summary.total_spent }}</div>
+        <div>Allocated: {{ summary.total_limit }}</div>
+        <a href="{{ url_for('routes.history_detail', year=summary.year, month=summary.month) }}" class="view-button">View</a>
+      </div>
+    {% endfor %}
+  {% endif %}
 </body>
 </html>
