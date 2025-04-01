@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accumulation Goal</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #FFFFFF;
+      color: #4682B4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 40px;
+      color: #4682B4;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    @keyframes slideDown {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    .goal-info {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 100px;
+      margin-bottom: 20px;
+    }
+    .progress-container {
+      position: relative;
+      width: 100%;
+      height: 60px;
+      background-color: #e0e0e0;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: #87CEEB;
+      width: 0;
+      transition: width 1.5s ease-out;
+    }
+    .progress-percentage {
+      font-size: 28px;
+      font-weight: bold;
+      color: #4682B4;
+      text-align: center;
+    }
+    .accumulation-form {
+      width: 350px;
+      text-align: center;
+      background-color: #FFFFFF;
+      border: 1px solid #E0E0E0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      padding: 30px 40px;
+    }
+    .accumulation-form form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .accumulation-form input {
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #E0E0E0;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .accumulation-form input:focus {
+      outline: none;
+      border-color: #87CEEB;
+      box-shadow: 0 0 5px rgba(135,206,235,0.5);
+    }
+    .accumulation-form button {
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      background-color: #87CEEB;
+      color: #FFFFFF;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .accumulation-form button:hover {
+      background-color: #4682B4;
+    }
+    .new-spending-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 20px 40px;
+      background-color: #4682B4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      z-index: 1001;
+    }
+    .new-spending-button:hover {
+      background-color: #3a6b93;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      max-width: 80%;
+      height: auto;
+    }
+    .register-container {
+      background-color: #FFFFFF;
+      border: 1px solid #E0E0E0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 30px 40px;
+      width: 350px;
+      text-align: center;
+    }
+    .register-container h1 {
+      margin-bottom: 20px;
+      color: #4682B4;
+    }
+    .register-container form {
+      display: flex;
+      flex-direction: column;
+    }
+    .register-container input {
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #E0E0E0;
+      border-radius: 5px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .register-container input:focus {
+      outline: none;
+      border-color: #87CEEB;
+      box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+    }
+    .register-container button {
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      background-color: #87CEEB;
+      color: #FFFFFF;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .register-container button:hover {
+      background-color: #4682B4;
+    }
+    .alert {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      font-size: 14px;
+      text-align: left;
+    }
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    #addMoneyBlock {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      padding: 20px;
+      background: #fff;
+      border: 2px solid #4682B4;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 2000;
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    #addMoneyBlock.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #addMoneyBlock h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+      color: #4682B4;
+    }
+    #addMoneyBlock label {
+      display: block;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    #addMoneyBlock input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    #addMoneyBlock .money-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    #addMoneyBlock button {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      width: 100px;
+      cursor: pointer;
+    }
+    #confirmMoneyBtn {
+      background-color: #87CEEB;
+      color: #fff;
+    }
+    #confirmMoneyBtn:hover {
+      background-color: #4682B4;
+    }
+    #cancelMoneyBtn {
+      background-color: #f44336;
+      color: #fff;
+    }
+    #cancelMoneyBtn:hover {
+      background-color: #d32f2f;
+    }
+    .edit-goal-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 20px 40px;
+      background-color: #4682B4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      z-index: 1001;
+    }
+    .edit-goal-button:hover {
+      background-color: #4682B4;
+    }
+    #editGoalBlock {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 320px;
+      padding: 20px;
+      background: #fff;
+      border: 2px solid #87CEEB;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 2000;
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    #editGoalBlock.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #editGoalBlock h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+      color: #4682B4;
+    }
+    #editGoalBlock label {
+      display: block;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    #editGoalBlock input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    #editGoalBlock .goal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    #editGoalBlock button {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      width: 100px;
+      cursor: pointer;
+    }
+    #confirmGoalBtn {
+      background-color: #87CEEB;
+      color: #fff;
+    }
+    #confirmGoalBtn:hover {
+      background-color: #4682B4;
+    }
+    #cancelGoalBtn {
+      background-color: #fff;
+      color: #4682B4;
+      border: 1px solid #4682B4;
+    }
+    #cancelGoalBtn:hover {
+      background-color: #f0f8ff;
+    }
+    #deleteGoalBtn {
+      background-color: #f44336;
+      color: #fff;
+    }
+    #deleteGoalBtn:hover {
+      background-color: #d32f2f;
+    }
+    .delete-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      animation: slideDown 0.5s ease forwards;
+    }
+    .delete-modal.active {
+      display: flex;
+    }
+    .delete-modal-content {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      animation: slideDown 0.5s ease forwards;
+    }
+    .delete-modal-content p {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #4682B4;
+    }
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .modal-buttons button {
+      padding: 8px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .modal-yes {
+      background-color: #f44336;
+      color: #fff;
+    }
+    .modal-yes:hover {
+      background-color: #d32f2f;
+    }
+    .modal-no {
+      background-color: #87CEEB;
+      color: #fff;
+    }
+    .modal-no:hover {
+      background-color: #4682B4;
+    }
+  </style>
+</head>
+<body>
+  {% include 'background.html' %}
+  {% include 'side_menu.html' %}
+
+  {% if accumulation %}
+    <button class="new-spending-button" id="addMoneyBtn">Add</button>
+    {% set goal_name = accumulation[2] %}
+    {% set accumulated = accumulation[3] %}
+    {% set total = accumulation[4] %}
+    {% if total > 0 %}
+      {% set percent = (accumulated / total * 100) | round(0, 'ceil') %}
+    {% else %}
+      {% set percent = 0 %}
+    {% endif %}
+
+    <h1>{{ goal_name }}</h1>
+    <div class="goal-info" id="goalInfo">
+      {{ accumulated }} / {{ total }}
+    </div>
+    <div id="motivationalMessage" style="font-size: 28px; color: #4682B4; margin: 40px 0 0; text-align: center; font-weight: 600;"></div>
+
+
+    <div class="progress-wrapper">
+      <div class="progress-percentage" id="progressPercentage">
+        0%
+      </div>
+      <div class="progress-container">
+        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+      </div>
+    </div>
+
+
+    <button class="edit-goal-button" id="editGoalBtn">Edit</button>
+    <div id="editGoalBlock">
+      <h2>Edit Goal</h2>
+      <label for="editGoalName">Goal Name:</label>
+      <input type="text" id="editGoalName" value="{{ goal_name }}">
+      <label for="editGoalTotal">Total Amount:</label>
+      <input type="number" id="editGoalTotal" value="{{ total }}" step="0.01">
+      <div class="goal-buttons">
+        <button id="confirmGoalBtn">Confirm</button>
+        <button id="cancelGoalBtn">Cancel</button>
+        <button id="deleteGoalBtn">Delete</button>
+      </div>
+    </div>
+  {% else %}
+    {% include 'background.html' %}
+  <img class="logo" src="{{ url_for('static', filename='Name.png') }}" alt="Logo">
+
+  <div class="register-container">
+    <h1>Start your goal</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('routes.accumulation') }}">
+      <input type="text" name="goal_name" placeholder="Goal Name" required>
+      <input type="number" step="0.01" name="total" placeholder="Total Amount" required>
+      <button type="submit">Start saving up</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <div id="addMoneyBlock">
+    <h2>Add to accumulation</h2>
+    <label for="addMoneyInput">Amount:</label>
+    <input type="number" id="addMoneyInput" placeholder="Amount" step="0.01">
+    <div class="money-buttons">
+      <button id="confirmMoneyBtn">Confirm</button>
+      <button id="cancelMoneyBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="delete-modal" id="deleteGoalModal">
+    <div class="delete-modal-content">
+      <p>Are you sure you want to delete the goal?</p>
+      <div class="modal-buttons">
+        <button class="modal-yes" id="modalGoalYes">Yes</button>
+        <button class="modal-no" id="modalGoalNo">No</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      function animateValue(element, start, end, duration, formatter) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+          element.innerText = formatter(start + progress * (end - start));
+          if (progress < 1) {
+            window.requestAnimationFrame(step);
+          }
+        };
+        window.requestAnimationFrame(step);
+      }
+      {% if accumulation %}
+        const progressFillEl = document.getElementById("progressFill");
+        const progressPercentageEl = document.getElementById("progressPercentage");
+        const goalInfoEl = document.getElementById("goalInfo");
+        const finalPercent = {{ percent }};
+        const finalAccumulated = {{ accumulated }};
+        const total = {{ total }};
+        setTimeout(() => {
+          progressFillEl.style.width = finalPercent + "%";
+        }, 100);
+        animateValue(progressPercentageEl, 0, finalPercent, 1000, value => Math.round(value) + "%");
+        animateValue(goalInfoEl, 0, finalAccumulated, 1000, value => Math.round(value) + " / " + total);
+        const motivationalMessages = {
+          low: [
+            "Every journey starts with a single step.",
+            "Small beginnings lead to big endings.",
+            "Keep going – you're on the path!",
+            "You're planting the seeds of success.",
+            "The start is always the hardest."
+          ],
+          mid: [
+            "Keep pushing – you're halfway there!",
+            "You're making great progress!",
+            "The road is long, but you're moving fast.",
+            "Momentum is on your side.",
+            "You're closer than you think."
+          ],
+          high: [
+            "Just a little more – the finish line is near!",
+            "Almost there – don’t give up now!",
+            "Final push – you've got this!",
+            "Your goal is within reach!",
+            "Stay strong – you're almost done!"
+          ],
+          complete: [
+            "Goal achieved – amazing work!",
+            "You did it!",
+            "Success! Now on to the next one.",
+            "Mission accomplished.",
+            "Your dedication paid off!"
+          ]
+        };
+
+        let messageCategory = 'low';
+        if (finalPercent >= 100) {
+          messageCategory = 'complete';
+        } else if (finalPercent >= 75) {
+          messageCategory = 'high';
+        } else if (finalPercent >= 25) {
+          messageCategory = 'mid';
+        }
+        const messages = motivationalMessages[messageCategory];
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        document.getElementById("motivationalMessage").textContent = messages[randomIndex];
+
+      {% endif %}
+
+      const addMoneyBtn = document.getElementById("addMoneyBtn");
+      const addMoneyBlock = document.getElementById("addMoneyBlock");
+      const cancelMoneyBtn = document.getElementById("cancelMoneyBtn");
+      const confirmMoneyBtn = document.getElementById("confirmMoneyBtn");
+
+      addMoneyBtn.addEventListener("click", function() {
+        addMoneyBlock.classList.add("show");
+      });
+      cancelMoneyBtn.addEventListener("click", function() {
+        addMoneyBlock.classList.remove("show");
+      });
+      confirmMoneyBtn.addEventListener("click", function() {
+        const amount = document.getElementById("addMoneyInput").value;
+        fetch("{{ url_for('routes.add_money') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: "amount=" + encodeURIComponent(amount)
+        })
+        .then(response => {
+          if (response.ok) {
+            location.reload();
+          } else {
+            throw new Error("Error adding money");
+          }
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      });
+
+      const editGoalBtn = document.getElementById("editGoalBtn");
+      const editGoalBlock = document.getElementById("editGoalBlock");
+      const cancelGoalBtn = document.getElementById("cancelGoalBtn");
+      const confirmGoalBtn = document.getElementById("confirmGoalBtn");
+      const deleteGoalBtn = document.getElementById("deleteGoalBtn");
+      const editGoalNameInput = document.getElementById("editGoalName");
+      const editGoalTotalInput = document.getElementById("editGoalTotal");
+
+      editGoalBtn.addEventListener("click", function() {
+        {% if accumulation %}
+          editGoalNameInput.value = "{{ goal_name }}";
+          editGoalTotalInput.value = "{{ total }}";
+        {% endif %}
+        editGoalBlock.classList.add("show");
+      });
+      cancelGoalBtn.addEventListener("click", function() {
+        editGoalBlock.classList.remove("show");
+      });
+      confirmGoalBtn.addEventListener("click", function() {
+        const newGoalName = editGoalNameInput.value;
+        const newTotal = editGoalTotalInput.value;
+        let params = new URLSearchParams();
+        params.append('new_goal_name', newGoalName);
+        params.append('new_total', newTotal);
+        fetch("{{ url_for('routes.update_goal') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: params
+        })
+        .then(response => {
+          if (response.ok) {
+            location.reload();
+          } else {
+            throw new Error("Error updating goal");
+          }
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      });
+      deleteGoalBtn.addEventListener("click", function() {
+        document.getElementById("deleteGoalModal").classList.add("active");
+      });
+      document.getElementById("modalGoalYes").addEventListener("click", function() {
+        fetch("{{ url_for('routes.delete_goal') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            location.reload();
+          } else {
+            throw new Error("Error deleting goal");
+          }
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      });
+      document.getElementById("modalGoalNo").addEventListener("click", function() {
+        document.getElementById("deleteGoalModal").classList.remove("active");
+      });
+    });
+  </script>
+</body>
+</html>

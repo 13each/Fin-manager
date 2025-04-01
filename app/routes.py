@@ -1,7 +1,7 @@
 import sqlite3
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from app.models import (get_user_by_email, update_categories, get_categories, update_user_password,
-                        get_monthly_history, archive_monthly_spending, DB_PATH)
+                        get_monthly_history, add_accumulation, get_accumulation, DB_PATH)
 import bcrypt
 import random
 from flask_mail import Message
@@ -403,3 +403,107 @@ def delete_category():
     else:
         flash("Category not found!", "error")
     return redirect(url_for('routes.view_categories'))
+
+
+@routes.route('/accumulation', methods=['GET', 'POST'])
+def accumulation():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+
+    if request.method == 'POST':
+        goal_name = request.form['goal_name']
+        try:
+            total = float(request.form['total'])
+        except ValueError:
+            flash("Invalid total amount", "error")
+            return redirect(url_for('routes.accumulation'))
+
+        add_accumulation(session['user_email'], goal_name, total)
+        flash("Accumulation goal created successfully", "success")
+        return redirect(url_for('routes.accumulation'))
+
+    accumulation_goal = get_accumulation(session['user_email'])
+    return render_template('accumulation.html', accumulation=accumulation_goal)
+
+
+@routes.route('/add_money', methods=['POST'])
+def add_money():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+    try:
+        amount = float(request.form['amount'])
+    except ValueError:
+        flash("Invalid amount value", "error")
+        return redirect(url_for('routes.accumulation'))
+
+    if amount < 0:
+        flash("Amount cannot be negative", "error")
+        return redirect(url_for('routes.accumulation'))
+
+    accum = get_accumulation(session['user_email'])
+    if not accum:
+        flash("No accumulation goal set", "error")
+        return redirect(url_for('routes.accumulation'))
+
+    accum_id, _, _, current_accumulated, total = accum
+    new_accumulated = current_accumulated + amount
+    if new_accumulated > total:
+        new_accumulated = total
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE accumulation SET accumulated = ? WHERE id = ?", (new_accumulated, accum_id))
+    conn.commit()
+    conn.close()
+    flash("Money added successfully", "success")
+    return redirect(url_for('routes.accumulation'))
+
+
+@routes.route('/update_goal', methods=['POST'])
+def update_goal():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+
+    new_goal_name = request.form.get('new_goal_name')
+    try:
+        new_total = float(request.form.get('new_total'))
+    except (ValueError, TypeError):
+        flash("Invalid total amount!", "error")
+        return redirect(url_for('routes.accumulation'))
+
+    accum = get_accumulation(session['user_email'])
+    if not accum:
+        flash("Accumulation goal not found!", "error")
+        return redirect(url_for('routes.accumulation'))
+
+    # accumulation: (id, user_id, goal_name, accumulated, total)
+    accum_id = accum[0]
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE accumulation SET goal_name = ?, total = ? WHERE id = ?",
+                   (new_goal_name, new_total, accum_id))
+    conn.commit()
+    conn.close()
+
+    flash("Goal updated successfully!", "success")
+    return redirect(url_for('routes.accumulation'))
+
+
+@routes.route('/delete_goal', methods=['POST'])
+def delete_goal():
+    if 'user_email' not in session:
+        return redirect(url_for('routes.login'))
+
+    accum = get_accumulation(session['user_email'])
+    if accum:
+        accum_id = accum[0]
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM accumulation WHERE id = ?", (accum_id,))
+        conn.commit()
+        conn.close()
+        flash("Goal deleted successfully!", "success")
+    else:
+        flash("Goal not found!", "error")
+    return redirect(url_for('routes.accumulation'))
