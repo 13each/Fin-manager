@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
-  <title>Login</title>
+  <title>{% if session.get('lang') == 'ru' %}Вход в аккаунт{% else %}Login{% endif %}</title>
   <style>
     body {
       margin: 0;
@@ -83,14 +83,25 @@
   <img class="logo" src="{{ url_for('static', filename='Name.png') }}" alt="Logo">
 
   <div class="login-container">
-    <h1>Login</h1>
+    <h1>{% if session.get('lang') == 'ru' %}Вход{% else %}Login{% endif %}</h1>
     <form method="POST" action="{{ url_for('routes.login') }}">
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit">Login</button>
+      <input type="email" name="email" placeholder="{% if session.get('lang') == 'ru' %}Электронная почта{% else %}Email{% endif %}" required>
+      <input type="password" name="password" placeholder="{% if session.get('lang') == 'ru' %}Пароль{% else %}Password{% endif %}" required>
+      <button type="submit">{% if session.get('lang') == 'ru' %}Войти{% else %}Login{% endif %}</button>
     </form>
-    <a href="{{ url_for('routes.reset_password_request') }}">Forgot password?</a>
-    <a href="{{ url_for('routes.register') }}">Don't have an account? Register here</a>
+    <a href="{{ url_for('routes.reset_password_request') }}">
+      {% if session.get('lang') == 'ru' %}Забыли пароль?{% else %}Forgot password?{% endif %}
+    </a>
+    <a href="{{ url_for('routes.register') }}">
+      {% if session.get('lang') == 'ru' %}Нет аккаунта? Зарегистрируйтесь{% else %}Don't have an account? Register here{% endif %}
+    </a>
+    <a class="link" href="{{ url_for('routes.switch_language') }}">
+      {% if session.get('lang') == 'ru' %}
+        Сменить язык (English)
+      {% else %}
+        Switch language (Русский)
+      {% endif %}
+    </a>
   </div>
 
   {% include 'background.html' %}

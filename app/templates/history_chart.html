@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
-  <title>History Chart</title>
+    {% if session.get('lang') == 'ru' %}
+      {% set monthNames = {1:"Январь", 2:"Февраль", 3:"Март", 4:"Апрель", 5:"Май", 6:"Июнь", 7:"Июль", 8:"Август", 9:"Сентябрь", 10:"Октябрь", 11:"Ноябрь", 12:"Декабрь"} %}
+    {% else %}
+      {% set monthNames = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June", 7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"} %}
+    {% endif %}
+  <title>{{ monthNames[month] }} {{ year }}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -110,7 +115,6 @@
   {% include 'background.html' %}
   {% include 'side_menu.html' %}
 
-  {% set monthNames = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June", 7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"} %}
   <div class="header">
     {{ monthNames[month] }} {{ year }}
   </div>
@@ -133,13 +137,13 @@
   <div class="legend" id="legend">
     <div class="legend-list" id="legend-list"></div>
     <div class="legend-buttons">
-      <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">Categories</button>
+      <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">{% if session.get('lang') == 'ru' %}Категории{% else %}Categories{% endif %}</button>
       <button id="toggleLegend">−</button>
     </div>
   </div>
 
   <button class="back-history-button" onclick="window.location.href='{{ url_for('routes.history') }}'">
-    Back to history
+    {% if session.get('lang') == 'ru' %}Назад к истории{% else %}Back to history{% endif %}
   </button>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>

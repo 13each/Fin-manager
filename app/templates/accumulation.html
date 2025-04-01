@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accumulation Goal</title>
+  <title>{% if session.get('lang') == 'ru' %}Цель накопления{% else %}Accumulation Goal{% endif %}</title>
   <style>
     body {
       margin: 0;
@@ -286,7 +286,7 @@
       border: 2px solid #87CEEB;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      z-index: 2000;
+      z-index: 1002;
       transform: translateY(100%);
       opacity: 0;
       pointer-events: none;
@@ -415,7 +415,7 @@
   {% include 'side_menu.html' %}
 
   {% if accumulation %}
-    <button class="new-spending-button" id="addMoneyBtn">Add</button>
+    <button class="new-spending-button" id="addMoneyBtn">{% if session.get('lang') == 'ru' %}Пополнить{% else %}Add{% endif %}</button>
     {% set goal_name = accumulation[2] %}
     {% set accumulated = accumulation[3] %}
     {% set total = accumulation[4] %}
@@ -442,17 +442,17 @@
     </div>
 
 
-    <button class="edit-goal-button" id="editGoalBtn">Edit</button>
+    <button class="edit-goal-button" id="editGoalBtn">{% if session.get('lang') == 'ru' %}Редактировать{% else %}Edit{% endif %}</button>
     <div id="editGoalBlock">
-      <h2>Edit Goal</h2>
-      <label for="editGoalName">Goal Name:</label>
+      <h2>{% if session.get('lang') == 'ru' %}Редактировать цель{% else %}Edit Goal{% endif %}</h2>
+      <label for="editGoalName">{% if session.get('lang') == 'ru' %}Название цели:{% else %}Goal Name:{% endif %}</label>
       <input type="text" id="editGoalName" value="{{ goal_name }}">
-      <label for="editGoalTotal">Total Amount:</label>
+      <label for="editGoalTotal">{% if session.get('lang') == 'ru' %}Сумма накопления:{% else %}Total Amount:{% endif %}</label>
       <input type="number" id="editGoalTotal" value="{{ total }}" step="0.01">
       <div class="goal-buttons">
-        <button id="confirmGoalBtn">Confirm</button>
-        <button id="cancelGoalBtn">Cancel</button>
-        <button id="deleteGoalBtn">Delete</button>
+        <button id="confirmGoalBtn">{% if session.get('lang') == 'ru' %}Сохранить{% else %}Confirm{% endif %}</button>
+        <button id="cancelGoalBtn">{% if session.get('lang') == 'ru' %}Отмена{% else %}Cancel{% endif %}</button>
+        <button id="deleteGoalBtn">{% if session.get('lang') == 'ru' %}Удалить{% else %}Delete{% endif %}</button>
       </div>
     </div>
   {% else %}
@@ -460,7 +460,7 @@
   <img class="logo" src="{{ url_for('static', filename='Name.png') }}" alt="Logo">
 
   <div class="register-container">
-    <h1>Start your goal</h1>
+    <h1>{% if session.get('lang') == 'ru' %}Начни копить{% else %}Start your goal{% endif %}</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -471,29 +471,29 @@
     {% endwith %}
 
     <form method="POST" action="{{ url_for('routes.accumulation') }}">
-      <input type="text" name="goal_name" placeholder="Goal Name" required>
-      <input type="number" step="0.01" name="total" placeholder="Total Amount" required>
-      <button type="submit">Start saving up</button>
+      <input type="text" name="goal_name" placeholder="{% if session.get('lang') == 'ru' %}Название цели{% else %}Goal Name{% endif %}" required>
+      <input type="number" step="0.01" name="total" placeholder="{% if session.get('lang') == 'ru' %}Сумма накопления{% else %}Total Amount{% endif %}" required>
+      <button type="submit">{% if session.get('lang') == 'ru' %}Начать копить{% else %}Start saving up{% endif %}</button>
     </form>
   </div>
   {% endif %}
 
   <div id="addMoneyBlock">
-    <h2>Add to accumulation</h2>
-    <label for="addMoneyInput">Amount:</label>
-    <input type="number" id="addMoneyInput" placeholder="Amount" step="0.01">
+    <h2>{% if session.get('lang') == 'ru' %}Пополнить накопление{% else %}Add to accumulation{% endif %}</h2>
+    <label for="addMoneyInput">{% if session.get('lang') == 'ru' %}Сумма:{% else %}Amount:{% endif %}</label>
+    <input type="number" id="addMoneyInput" placeholder="{% if session.get('lang') == 'ru' %}Сумма{% else %}Amount{% endif %}" step="0.01">
     <div class="money-buttons">
-      <button id="confirmMoneyBtn">Confirm</button>
-      <button id="cancelMoneyBtn">Cancel</button>
+      <button id="confirmMoneyBtn">{% if session.get('lang') == 'ru' %}Добавить{% else %}Confirm{% endif %}</button>
+      <button id="cancelMoneyBtn">{% if session.get('lang') == 'ru' %}Отмена{% else %}Cancel{% endif %}</button>
     </div>
   </div>
 
   <div class="delete-modal" id="deleteGoalModal">
     <div class="delete-modal-content">
-      <p>Are you sure you want to delete the goal?</p>
+      <p>{% if session.get('lang') == 'ru' %}Вы уверены, что хотите удалить цель?{% else %}Are you sure you want to delete the goal?{% endif %}</p>
       <div class="modal-buttons">
-        <button class="modal-yes" id="modalGoalYes">Yes</button>
-        <button class="modal-no" id="modalGoalNo">No</button>
+        <button class="modal-yes" id="modalGoalYes">{% if session.get('lang') == 'ru' %}Да{% else %}Yes{% endif %}</button>
+        <button class="modal-no" id="modalGoalNo">{% if session.get('lang') == 'ru' %}Нет{% else %}No{% endif %}</button>
       </div>
     </div>
   </div>
@@ -525,34 +525,66 @@
         animateValue(progressPercentageEl, 0, finalPercent, 1000, value => Math.round(value) + "%");
         animateValue(goalInfoEl, 0, finalAccumulated, 1000, value => Math.round(value) + " / " + total);
         const motivationalMessages = {
-          low: [
-            "Every journey starts with a single step.",
-            "Small beginnings lead to big endings.",
-            "Keep going – you're on the path!",
-            "You're planting the seeds of success.",
-            "The start is always the hardest."
-          ],
-          mid: [
-            "Keep pushing – you're halfway there!",
-            "You're making great progress!",
-            "The road is long, but you're moving fast.",
-            "Momentum is on your side.",
-            "You're closer than you think."
-          ],
-          high: [
-            "Just a little more – the finish line is near!",
-            "Almost there – don’t give up now!",
-            "Final push – you've got this!",
-            "Your goal is within reach!",
-            "Stay strong – you're almost done!"
-          ],
-          complete: [
-            "Goal achieved – amazing work!",
-            "You did it!",
-            "Success! Now on to the next one.",
-            "Mission accomplished.",
-            "Your dedication paid off!"
-          ]
+            en: {
+              low: [
+                "Every journey starts with a single step.",
+                "Small beginnings lead to big endings.",
+                "Keep going – you're on the path!",
+                "You're planting the seeds of success.",
+                "The start is always the hardest."
+              ],
+              mid: [
+                "Keep pushing – you're halfway there!",
+                "You're making great progress!",
+                "The road is long, but you're moving fast.",
+                "Momentum is on your side.",
+                "You're closer than you think."
+              ],
+              high: [
+                "Just a little more – the finish line is near!",
+                "Almost there – don’t give up now!",
+                "Final push – you've got this!",
+                "Your goal is within reach!",
+                "Stay strong – you're almost done!"
+              ],
+              complete: [
+                "Goal achieved – amazing work!",
+                "You did it!",
+                "Success! Now on to the next one.",
+                "Mission accomplished.",
+                "Your dedication paid off!"
+              ]
+            },
+            ru: {
+              low: [
+                "Ты только начинаешь — отличный старт!",
+                "Первый шаг уже сделан!",
+                "Начало положено, продолжай!",
+                "Главное — начать. Ты справился!",
+                "Маленькие шаги ведут к большим победам!"
+              ],
+              mid: [
+                "Дорогу осилит идущий!",
+                "Уже на полпути – не останавливайся!",
+                "Отличный прогресс, так держать!",
+                "Ты движешься в правильном направлении!",
+                "Цель становится ближе с каждым шагом!"
+              ],
+              high: [
+                "Осталось совсем немного!",
+                "Ты почти у цели!",
+                "Последний рывок – и ты победил!",
+                "В финальной прямой!",
+                "Не сдавайся – победа рядом!"
+              ],
+              complete: [
+                "Цель достигнута – поздравляем!",
+                "Ты справился – отличная работа!",
+                "Невероятный результат – цель достигнута!",
+                "Поздравляем с успешным завершением!",
+                "Финал достигнут – ты молодец!"
+              ]
+            }
         };
 
         let messageCategory = 'low';
@@ -563,7 +595,8 @@
         } else if (finalPercent >= 25) {
           messageCategory = 'mid';
         }
-        const messages = motivationalMessages[messageCategory];
+        const lang = "{{ session.get('lang', 'en') }}";
+        const messages = motivationalMessages[lang][messageCategory];
         const randomIndex = Math.floor(Math.random() * messages.length);
         document.getElementById("motivationalMessage").textContent = messages[randomIndex];
 

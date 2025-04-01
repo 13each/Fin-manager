@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
-  <title>Categories</title>
+  <title>{% if session.get('lang') == 'ru' %}Категории{% else %}Categories{% endif %}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -229,7 +229,7 @@
   {% include 'background.html' %}
   {% include 'side_menu.html' %}
 
-  <h1>Categories</h1>
+  <h1>{% if session.get('lang') == 'ru' %}Категории{% else %}Categories{% endif %}</h1>
 
   <div class="categories-container">
     {% for cat, data in categories.items() %}
@@ -241,10 +241,10 @@
           </div>
           <div class="col cat-limit">{{ data.limit }}</div>
           <div class="col">
-            <button class="edit-btn">Edit</button>
+            <button class="edit-btn">{% if session.get('lang') == 'ru' %}Изменить{% else %}Edit{% endif %}</button>
           </div>
           <div class="col">
-            <button class="delete-btn">Delete</button>
+            <button class="delete-btn">{% if session.get('lang') == 'ru' %}Удалить{% else %}Delete{% endif %}</button>
           </div>
         </div>
       </div>
@@ -252,23 +252,23 @@
 
     <div class="category-block" id="addCategoryBlock">
       <div class="add-category-block" id="addCategoryTrigger">
-        Add Category
+        {% if session.get('lang') == 'ru' %}Добавить категорию{% else %}Add Category{% endif %}
       </div>
       <div class="add-category-form" id="addCategoryForm">
         <div class="add-col">
-          <input type="text" id="newCatName" placeholder="Name" required>
+          <input type="text" id="newCatName" placeholder="{% if session.get('lang') == 'ru' %}Название{% else %}Name{% endif %}" required>
         </div>
         <div class="add-col">
           <input type="color" id="newCatColor" value="#87CEEB">
         </div>
         <div class="add-col">
-          <input type="number" id="newCatLimit" placeholder="Limit" required>
+          <input type="number" id="newCatLimit" placeholder="{% if session.get('lang') == 'ru' %}Лимит{% else %}Limit{% endif %}" required>
         </div>
         <div class="add-col">
-          <button class="confirm-btn" id="confirmAddCat">Confirm</button>
+          <button class="confirm-btn" id="confirmAddCat">{% if session.get('lang') == 'ru' %}Сохранить{% else %}Confirm{% endif %}</button>
         </div>
         <div class="add-col">
-          <button class="cancel-btn" id="cancelAddCat">Cancel</button>
+          <button class="cancel-btn" id="cancelAddCat">{% if session.get('lang') == 'ru' %}Отмена{% else %}Cancel{% endif %}</button>
         </div>
       </div>
     </div>
@@ -276,10 +276,10 @@
 
   <div class="delete-modal" id="deleteModal">
     <div class="delete-modal-content">
-      <p>Are you sure?</p>
+      <p>{% if session.get('lang') == 'ru' %}Вы уверены?{% else %}Are you sure?{% endif %}</p>
       <div class="modal-buttons">
-        <button class="modal-yes" id="modalYes">Yes</button>
-        <button class="modal-no" id="modalNo">No</button>
+        <button class="modal-yes" id="modalYes">{% if session.get('lang') == 'ru' %}Да{% else %}Yes{% endif %}</button>
+        <button class="modal-no" id="modalNo">{% if session.get('lang') == 'ru' %}Нет{% else %}No{% endif %}</button>
       </div>
     </div>
   </div>
@@ -293,7 +293,7 @@
           const colorDiv = block.querySelector('.cat-color');
           const limitCol = block.querySelector('.cat-limit');
 
-          if (btn.textContent === 'Edit') {
+          if (btn.textContent === 'Edit' || btn.textContent === 'Изменить') {
             const currentName = nameCol.textContent.trim();
             const currentColor = colorDiv.getAttribute('data-color');
             const currentLimit = limitCol.textContent.trim();
@@ -301,7 +301,7 @@
             nameCol.innerHTML = `<input type="text" class="edit-name" value="${currentName}" style="width: 100%; text-align: center;">`;
             colorDiv.innerHTML = `<input type="color" class="edit-color" value="${currentColor}" style="width:100%; height:100%; border:none; padding:0;">`;
             limitCol.innerHTML = `<input type="number" class="edit-limit" value="${currentLimit}" style="width: 100%; text-align: center;">`;
-            btn.textContent = 'Confirm';
+            btn.textContent = "{{ 'Сохранить' if session.get('lang') == 'ru' else 'Confirm' }}";
           } else {
             const newName = block.querySelector('.edit-name').value;
             const newColor = block.querySelector('.edit-color').value;
@@ -334,7 +334,7 @@
               colorDiv.style.backgroundColor = newColor;
               colorDiv.setAttribute('data-color', newColor);
               limitCol.textContent = newLimit;
-              btn.textContent = 'Edit';
+              btn.textContent = "{{ 'Изменить' if session.get('lang') == 'ru' else 'Edit' }}";
               block.setAttribute('data-category', newName);
             })
             .catch(error => {

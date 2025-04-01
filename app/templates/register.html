@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
+  <title>{% if session.get('lang') == 'ru' %}Регистрация{% else %}Register{% endif %}</title>
   <style>
     body {
       margin: 0;
@@ -100,7 +100,7 @@
   <img class="logo" src="{{ url_for('static', filename='Name.png') }}" alt="Logo">
 
   <div class="register-container">
-    <h1>Register</h1>
+    <h1>{% if session.get('lang') == 'ru' %}Регистрация{% else %}Register{% endif %}</h1>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -109,12 +109,26 @@
       {% endif %}
     {% endwith %}
     <form method="POST" action="{{ url_for('routes.register') }}">
-      <input type="email" id="email" name="email" placeholder="Email" required>
-      <input type="password" id="password" name="password" placeholder="Password" required>
-      <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
-      <button type="submit">Register</button>
+      <input type="email" id="email" name="email" placeholder="{% if session.get('lang') == 'ru' %}Электронная почта{% else %}Email{% endif %}" required>
+      <input type="password" id="password" name="password" placeholder="{% if session.get('lang') == 'ru' %}Пароль{% else %}Password{% endif %}" required>
+      <input type="password" id="confirm_password" name="confirm_password" placeholder="{% if session.get('lang') == 'ru' %}Подтвердите пароль{% else %}Confirm Password{% endif %}" required>
+      <button type="submit">{% if session.get('lang') == 'ru' %}Зарегистрироваться{% else %}Register{% endif %}</button>
     </form>
-    <a class="link" href="{{ url_for('routes.login') }}">Already have an account? Log in here</a>
+    <a class="link" href="{{ url_for('routes.login') }}">
+      {% if session.get('lang') == 'ru' %}
+        Уже есть аккаунт? Войдите
+      {% else %}
+        Already have an account? Log in here
+      {% endif %}
+    </a>
+    <br>
+    <a class="link" href="{{ url_for('routes.switch_language') }}">
+      {% if session.get('lang') == 'ru' %}
+        Сменить язык (English)
+      {% else %}
+        Switch language (Русский)
+      {% endif %}
+    </a>
   </div>
 </body>
 </html>

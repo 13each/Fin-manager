@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirm Email</title>
+  <title>{% if session.get('lang') == 'ru' %}Подтверждение почты{% else %}Confirm Email{% endif %}</title>
   <style>
     body {
       margin: 0;
@@ -13,9 +12,16 @@
       background-color: #FFFFFF;
       color: #4682B4;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      max-width: 80%;
+      height: auto;
     }
     .confirm-container {
       background-color: #FFFFFF;
@@ -25,6 +31,7 @@
       padding: 30px 40px;
       width: 350px;
       text-align: center;
+      margin-top: 20px;
     }
     .confirm-container h1 {
       margin-bottom: 20px;
@@ -89,8 +96,11 @@
   </style>
 </head>
 <body>
+  {% include 'background.html' %}
+  <img class="logo" src="{{ url_for('static', filename='Name.png') }}" alt="Logo">
+
   <div class="confirm-container">
-    <h1>Confirm Your Email</h1>
+    <h1>{% if session.get('lang') == 'ru' %}Подтвердите вашу почту{% else %}Confirm Your Email{% endif %}</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -101,10 +111,13 @@
     {% endwith %}
 
     <form method="POST" action="{{ url_for('routes.confirm_email') }}">
-      <input type="text" id="code" name="code" placeholder="Confirmation Code" required>
-      <button type="submit">Confirm Email</button>
+      <input type="text" id="code" name="code" placeholder="{% if session.get('lang') == 'ru' %}Код подтверждения{% else %}Confirmation Code{% endif %}" required>
+      <button type="submit">{% if session.get('lang') == 'ru' %}Подтвердить{% else %}Confirm Email{% endif %}</button>
     </form>
-    <a class="link" href="{{ url_for('routes.register') }}">Back to Registration</a>
+
+    <a class="link" href="{{ url_for('routes.register') }}">
+      {% if session.get('lang') == 'ru' %}Вернуться к регистрации{% else %}Back to Registration{% endif %}
+    </a>
   </div>
 </body>
 </html>

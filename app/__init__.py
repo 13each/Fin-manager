@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, session
 from flask_session import Session
 from flask_mail import Mail
 from app.models import init_db
@@ -24,5 +24,9 @@ def create_app():
 
     from app.routes import routes
     app.register_blueprint(routes)
+
+    @app.context_processor
+    def inject_lang():
+        return dict(lang=session.get('lang', 'en'))
 
     return app

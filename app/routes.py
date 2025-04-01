@@ -31,11 +31,17 @@ def register():
         confirm_password = request.form['confirm_password']
 
         if password != confirm_password:
-            flash("Passwords do not match!", "error")
+            if session.get('lang') == 'ru':
+                flash("Пароли не совпадают", "error")
+            else:
+                flash("Passwords do not match!", "error")
             return redirect(url_for('routes.register'))
 
         if get_user_by_email(email):
-            flash("Email already exists!", "error")
+            if session.get('lang') == 'ru':
+                flash("Аккаунт с данной почтой уже зарегестрирован", "error")
+            else:
+                flash("Email already exists!", "error")
             return redirect(url_for('routes.register'))
 
         confirmation_code = str(random.randint(100000, 999999))
@@ -49,8 +55,10 @@ def register():
             'password': bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
             'code': confirmation_code
         }
-
-        flash("A confirmation code has been sent to your email.", "info")
+        if session.get('lang') == 'ru':
+            flash("Код подтверждения был выслан на ваш email.", "info")
+        else:
+            flash("A confirmation code has been sent to your email.", "info")
         return redirect(url_for('routes.confirm_email'))
 
     return render_template('register.html')
@@ -67,11 +75,17 @@ def login():
 
         user = get_user_by_email(email)
         if not user or not bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
-            flash("Invalid email or password", "error")
+            if session.get('lang') == 'ru':
+                flash("Неверный email или пароль", "error")
+            else:
+                flash("Invalid email or password", "error")
             return redirect(url_for('routes.login'))
 
         if user[3] == 0:
-            flash("Your email is not confirmed. Please check your email.", "error")
+            if session.get('lang') == 'ru':
+                flash("Ваш email не подтвержден. Пожалуйста, проверьте почту.", "error")
+            else:
+                flash("Your email is not confirmed. Please check your email.", "error")
             return redirect(url_for('routes.login'))
 
         session['user_email'] = email
@@ -96,18 +110,15 @@ def add_category():
         try:
             limit = float(request.form['limit'])
         except ValueError:
-            flash("Invalid limit value!", "error")
             return redirect(url_for('routes.add_category'))
         color_input = request.form.get('color') or "#000000"
         categories = get_categories(session['user_email'])
 
         if name in categories:
-            flash(f"Category {name} already exists!", "error")
             return redirect(url_for('routes.add_category'))
 
         categories[name] = {"limit": limit, "spent": 0, "color": color_input}
         update_categories(session['user_email'], categories)
-        flash("Category added successfully", "success")
         return redirect(url_for('routes.add_category'))
 
     return render_template('add_category.html')
@@ -124,21 +135,21 @@ def add_spending():
         try:
             amount = float(request.form['amount'])
         except ValueError:
-            flash("Invalid amount value", "error")
             return redirect(url_for('routes.home'))
 
         if amount < 0:
-            flash("Spending amount cannot be negative", "error")
             return redirect(url_for('routes.home'))
 
         if category not in categories:
-            flash(f"Category {category} does not exist!", "error")
             return redirect(url_for('routes.home'))
 
         session['last_spending'] = {'category': category, 'amount': amount}
         categories[category]['spent'] += amount
         update_categories(session['user_email'], categories)
-        flash("Spending added successfully", "success")
+        if session.get('lang') == 'ru':
+            flash("Трата успешно добавлена", "success")
+        else:
+            flash("Spending added successfully", "success")
         return redirect(url_for('routes.home'))
 
     return redirect(url_for('routes.home'))
@@ -176,7 +187,6 @@ def history_detail(year, month):
     history_data = get_monthly_history(session['user_email'])
     snapshot = next((s for s in history_data if s.get("year") == year and s.get("month") == month), None)
     if not snapshot:
-        flash("No data found for the selected month.", "error")
         return redirect(url_for('routes.history'))
 
     colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FFA07A', '#8A2BE2']
@@ -265,7 +275,10 @@ def confirm_email():
         pending_data = session.get('pending_registration')
 
         if not pending_data:
-            flash("No registration data found. Please register again.", "error")
+            if session.get('lang') == 'ru':
+                flash("Данный email не найден. Пожалуйста, попробуйте ещё раз.", "error")
+            else:
+                flash("No registration data found. Please register again.", "error")
             return redirect(url_for('routes.register'))
 
         if entered_code == pending_data['code']:
@@ -280,10 +293,12 @@ def confirm_email():
             conn.close()
 
             session.pop('pending_registration', None)
-            flash("Your email has been confirmed. You can now log in!", "success")
             return redirect(url_for('routes.login'))
         else:
-            flash("Invalid confirmation code!", "error")
+            if session.get('lang') == 'ru':
+                flash("Неверный код подтверждения!", "error")
+            else:
+                flash("Invalid confirmation code!", "error")
 
     return render_template('confirm_email.html')
 
@@ -297,7 +312,10 @@ def reset_password_request():
         email = request.form['email']
         user = get_user_by_email(email)
         if not user:
-            flash("No user found with that email.", "error")
+            if session.get('lang') == 'ru':
+                flash("Не найден пользователь с такой почтой.", "error")
+            else:
+                flash("No user found with that email.", "error")
             return redirect(url_for('routes.reset_password_request'))
 
         reset_code = str(random.randint(100000, 999999))
@@ -307,7 +325,10 @@ def reset_password_request():
         mail.send(msg)
 
         session['password_reset'] = {'email': email, 'code': reset_code}
-        flash("A password reset code has been sent to your email.", "info")
+        if session.get('lang') == 'ru':
+            flash("Код подтверждения был выслан на вашу почту.", "info")
+        else:
+            flash("A password reset code has been sent to your email.", "info")
         return redirect(url_for('routes.reset_password'))
     return render_template('reset_password_request.html')
 
@@ -323,24 +344,31 @@ def reset_password():
         confirm_password = request.form['confirm_password']
 
         if new_password != confirm_password:
-            flash("Passwords do not match!", "error")
+            if session.get('lang') == 'ru':
+                flash("Пароли не совпадают!", "error")
+            else:
+                flash("Passwords do not match!", "error")
             return redirect(url_for('routes.reset_password'))
 
         reset_data = session.get('password_reset')
         if not reset_data:
-            flash("Reset data not found. Please request a new code.", "error")
+            if session.get('lang') == 'ru':
+                flash("Данные о сбросе пароля не найдены. Пожалуйста, попробуйте ещё раз.", "error")
+            else:
+                flash("Reset data not found. Please request a new code.", "error")
             return redirect(url_for('routes.reset_password_request'))
 
         if entered_code != reset_data['code']:
-            flash("Invalid reset code. Please try again.", "error")
+            if session.get('lang') == 'ru':
+                flash("Неверный код сброса. Пожалуйста, попробуйте ещё раз.", "error")
+            else:
+                flash("Invalid reset code. Please try again.", "error")
             return redirect(url_for('routes.reset_password'))
 
         hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         update_user_password(reset_data['email'], hashed_password)
 
         session.pop('password_reset', None)
-
-        flash("Password successfully updated. You can now log in.", "success")
         return redirect(url_for('routes.login'))
 
     return render_template('reset_password.html')
@@ -363,19 +391,16 @@ def update_category():
     try:
         new_limit = float(request.form.get('new_limit'))
     except ValueError:
-        flash("Invalid limit value!", "error")
         return redirect(url_for('routes.view_categories'))
 
     new_color = request.form.get('new_color') or "#000000"
 
     user_categories = get_categories(session['user_email'])
     if old_name not in user_categories:
-        flash("Category not found!", "error")
         return redirect(url_for('routes.view_categories'))
 
     if new_name != old_name:
         if new_name in user_categories:
-            flash("New category name already exists!", "error")
             return redirect(url_for('routes.view_categories'))
         cat_data = user_categories.pop(old_name)
         cat_data['limit'] = new_limit
@@ -386,7 +411,6 @@ def update_category():
         user_categories[old_name]['color'] = new_color
 
     update_categories(session['user_email'], user_categories)
-    flash("Category updated successfully!", "success")
     return redirect(url_for('routes.view_categories'))
 
 
@@ -399,9 +423,6 @@ def delete_category():
     if category_name in user_categories:
         user_categories.pop(category_name)
         update_categories(session['user_email'], user_categories)
-        flash("Category deleted successfully!", "success")
-    else:
-        flash("Category not found!", "error")
     return redirect(url_for('routes.view_categories'))
 
 
@@ -415,11 +436,9 @@ def accumulation():
         try:
             total = float(request.form['total'])
         except ValueError:
-            flash("Invalid total amount", "error")
             return redirect(url_for('routes.accumulation'))
 
         add_accumulation(session['user_email'], goal_name, total)
-        flash("Accumulation goal created successfully", "success")
         return redirect(url_for('routes.accumulation'))
 
     accumulation_goal = get_accumulation(session['user_email'])
@@ -433,16 +452,13 @@ def add_money():
     try:
         amount = float(request.form['amount'])
     except ValueError:
-        flash("Invalid amount value", "error")
         return redirect(url_for('routes.accumulation'))
 
     if amount < 0:
-        flash("Amount cannot be negative", "error")
         return redirect(url_for('routes.accumulation'))
 
     accum = get_accumulation(session['user_email'])
     if not accum:
-        flash("No accumulation goal set", "error")
         return redirect(url_for('routes.accumulation'))
 
     accum_id, _, _, current_accumulated, total = accum
@@ -455,7 +471,6 @@ def add_money():
     cursor.execute("UPDATE accumulation SET accumulated = ? WHERE id = ?", (new_accumulated, accum_id))
     conn.commit()
     conn.close()
-    flash("Money added successfully", "success")
     return redirect(url_for('routes.accumulation'))
 
 
@@ -468,15 +483,12 @@ def update_goal():
     try:
         new_total = float(request.form.get('new_total'))
     except (ValueError, TypeError):
-        flash("Invalid total amount!", "error")
         return redirect(url_for('routes.accumulation'))
 
     accum = get_accumulation(session['user_email'])
     if not accum:
-        flash("Accumulation goal not found!", "error")
         return redirect(url_for('routes.accumulation'))
 
-    # accumulation: (id, user_id, goal_name, accumulated, total)
     accum_id = accum[0]
 
     conn = sqlite3.connect(DB_PATH)
@@ -485,8 +497,6 @@ def update_goal():
                    (new_goal_name, new_total, accum_id))
     conn.commit()
     conn.close()
-
-    flash("Goal updated successfully!", "success")
     return redirect(url_for('routes.accumulation'))
 
 
@@ -503,7 +513,11 @@ def delete_goal():
         cursor.execute("DELETE FROM accumulation WHERE id = ?", (accum_id,))
         conn.commit()
         conn.close()
-        flash("Goal deleted successfully!", "success")
-    else:
-        flash("Goal not found!", "error")
     return redirect(url_for('routes.accumulation'))
+
+
+@routes.route('/switch_language')
+def switch_language():
+    current_lang = session.get('lang', 'en')
+    session['lang'] = 'ru' if current_lang == 'en' else 'en'
+    return redirect(request.referrer or url_for('routes.home'))

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
-  <title>History</title>
+  <title>{% if session.get('lang') == 'ru' %}История{% else %}History{% endif %}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,8 +29,8 @@
       border-radius: 10px;
       padding: 20px;
       margin: 20px auto;
-      width: 90%;
-      max-width: 600px;
+      width: 95%;
+      max-width: 800px;
       background: #fff;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       opacity: 0;
@@ -109,12 +109,16 @@
   {% include 'background.html' %}
   {% include 'side_menu.html' %}
 
-  <h1>History</h1>
+  <h1>{% if session.get('lang') == 'ru' %}История{% else %}History{% endif %}</h1>
 
   {% if summaries|length == 0 %}
-    <div class="empty-message">History is empty</div>
+    <div class="empty-message">{% if session.get('lang') == 'ru' %}История пуста{% else %}History is empty{% endif %}</div>
   {% else %}
-    {% set monthNames = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"} %}
+    {% if session.get('lang') == 'ru' %}
+        {% set monthNames = {1:"Январь", 2:"Февраль", 3:"Март", 4:"Апрель", 5:"Май", 6:"Июнь", 7:"Июль", 8:"Август", 9:"Сентябрь", 10:"Октябрь", 11:"Ноябрь", 12:"Декабрь"} %}
+    {% else %}
+        {% set monthNames = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June", 7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"} %}
+    {% endif %}
     {% for summary in summaries %}
       {% set dynamic = summary.total_limit - summary.total_spent %}
       {% if dynamic > 0 %}
@@ -131,13 +135,13 @@
         <div class="header-left">{{ monthNames[summary.month] }} {{ summary.year }}</div>
         <div class="summary-row">
           <div class="summary-item">
-            <span class="shifted-text">Spent: {{ summary.total_spent }}</span>
+            <span class="shifted-text">{% if session.get('lang') == 'ru' %}Потрачено: {{ summary.total_spent }}{% else %}Spent: {{ summary.total_spent }}{% endif %}</span>
           </div>
           <div class="summary-item" style="color: {{ dynamic_color }};">
-            <span class="shifted-text">Dynamic: {{ dynamic_display }}</span>
+            <span class="shifted-text">{% if session.get('lang') == 'ru' %}Остаток: {{ dynamic_display }}{% else %}Dynamic: {{ dynamic_display }}{% endif %}</span>
           </div>
           <div class="summary-item">
-            <a href="{{ url_for('routes.history_detail', year=summary.year, month=summary.month) }}" class="view-button">View</a>
+            <a href="{{ url_for('routes.history_detail', year=summary.year, month=summary.month) }}" class="view-button">{% if session.get('lang') == 'ru' %}Подробнее{% else %}View{% endif %}</a>
           </div>
         </div>
       </div>

@@ -138,23 +138,45 @@
 </div>
 
 <div class="side-menu-container" id="sideMenuContainer">
-  <a href="{{ url_for('routes.home') }}">Your spendings</a>
-  <a href="{{ url_for('routes.view_categories') }}">Categories</a>
-  <a href="{{ url_for('routes.history') }}">History</a>
-  <a href="{{ url_for('routes.accumulation') }}">Accumulation</a>
-  <a href="#" class="logout" id="logoutLink">Logout</a>
+  <a href="{{ url_for('routes.home') }}">
+    {% if session.get('lang') == 'ru' %}Ваши траты{% else %}Your spendings{% endif %}
+  </a>
+  <a href="{{ url_for('routes.view_categories') }}">
+    {% if session.get('lang') == 'ru' %}Категории{% else %}Categories{% endif %}
+  </a>
+  <a href="{{ url_for('routes.history') }}">
+    {% if session.get('lang') == 'ru' %}История{% else %}History{% endif %}
+  </a>
+  <a href="{{ url_for('routes.accumulation') }}">
+    {% if session.get('lang') == 'ru' %}Накопление{% else %}Accumulation{% endif %}
+  </a>
+  <a href="{{ url_for('routes.switch_language') }}">
+    {% if session.get('lang') == 'ru' %}Сменить язык (English){% else %}Switch language (Русский){% endif %}
+  </a>
+  <a href="#" class="logout" id="logoutLink">
+    {% if session.get('lang') == 'ru' %}Выйти{% else %}Logout{% endif %}
+  </a>
 </div>
 
 <div class="modal-overlay" id="logoutModal">
   <div class="modal-content">
-    <p>Are you sure you want to log out?</p>
+    <p>
+      {% if session.get('lang') == 'ru' %}
+        Вы уверены, что хотите выйти?
+      {% else %}
+        Are you sure you want to log out?
+      {% endif %}
+    </p>
     <div class="modal-buttons">
-      <button class="modal-yes" id="logoutYes">Yes</button>
-      <button class="modal-no" id="logoutNo">No</button>
+      <button class="modal-yes" id="logoutYes">
+        {% if session.get('lang') == 'ru' %}Да{% else %}Yes{% endif %}
+      </button>
+      <button class="modal-no" id="logoutNo">
+        {% if session.get('lang') == 'ru' %}Нет{% else %}No{% endif %}
+      </button>
     </div>
   </div>
 </div>
-
 <script>
   const sideMenu = document.getElementById('sideMenu');
   const sideMenuContainer = document.getElementById('sideMenuContainer');
@@ -162,6 +184,7 @@
   const logoutModal = document.getElementById('logoutModal');
   const logoutYes = document.getElementById('logoutYes');
   const logoutNo = document.getElementById('logoutNo');
+  const langSwitch = document.getElementById('langSwitch');
 
   sideMenu.addEventListener('mouseenter', () => {
     sideMenuContainer.classList.add('active');
@@ -182,5 +205,14 @@
 
   logoutYes.addEventListener('click', () => {
     window.location.href = "{{ url_for('routes.logout') }}";
+  });
+
+  langSwitch.addEventListener('click', () => {
+    fetch("{{ url_for('routes.switch_language') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(() => window.location.reload())
+    .catch(err => alert("Error switching language"));
   });
 </script>

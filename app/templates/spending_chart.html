@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
-  <title>Spending Chart</title>
+  <title>{% if session.get('lang') == 'ru' %}Диаграмма трат{% else %}Spending Chart{% endif %}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -232,7 +232,13 @@
   {% endwith %}
 
   <div style="text-align: center;">
-    <h1>Spending Chart</h1>
+    <h1>
+      {% if session.get('lang') == 'ru' %}
+        Диаграмма трат
+      {% else %}
+        Spending Chart
+      {% endif %}
+    </h1>
   </div>
 
   <div class="chart-wrapper" id="chart-wrapper">
@@ -253,19 +259,49 @@
   <div class="legend" id="legend">
     <div class="legend-list" id="legend-list"></div>
     <div class="legend-buttons">
-      <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">Categories</button>
+      <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">
+        {% if session.get('lang') == 'ru' %}
+          Категории
+        {% else %}
+          Categories
+        {% endif %}
+      </button>
       <button id="toggleLegend">−</button>
     </div>
   </div>
 
-  <button class="new-spending-button" id="newSpendingBtn">New Spending</button>
+  <button class="new-spending-button" id="newSpendingBtn">
+      {% if session.get('lang') == 'ru' %}
+        Новая трата
+      {% else %}
+        New Spending
+      {% endif %}
+  </button>
 
   <div id="newSpendingModal">
-    <h2>New Spending</h2>
+    <h2>
+      {% if session.get('lang') == 'ru' %}
+        Новая трата
+      {% else %}
+        New Spending
+      {% endif %}
+    </h2>
     <form id="newSpendingForm" method="POST" action="{{ url_for('routes.add_spending') }}">
-      <label for="customSelect">Category:</label>
+      <label for="customSelect">
+        {% if session.get('lang') == 'ru' %}
+          Категория:
+        {% else %}
+          Category:
+        {% endif %}
+      </label>
       <div id="customSelect" class="custom-select">
-        <div class="selected-option">Select category</div>
+      <div class="selected-option">
+        {% if session.get('lang') == 'ru' %}
+          Выберите категорию
+        {% else %}
+          Select category
+        {% endif %}
+      </div>
         <div class="options-container">
           {% for cat, data in categories.items() %}
             <div class="option" data-value="{{ cat }}">{{ cat }}</div>
@@ -273,10 +309,28 @@
         </div>
       </div>
       <input type="hidden" name="category" id="ns-category" required>
-      <label for="ns-amount">Amount:</label>
+      <label for="ns-amount">
+        {% if session.get('lang') == 'ru' %}
+          Сумма:
+        {% else %}
+          Amount:
+        {% endif %}
+      </label>
       <input type="number" id="ns-amount" name="amount" step="0.01" required>
-      <button type="submit">Add</button>
-      <button type="button" class="close-btn" id="closeModalBtn">Close</button>
+      <button type="submit">
+        {% if session.get('lang') == 'ru' %}
+          Добавить
+        {% else %}
+          Add
+        {% endif %}
+      </button>
+      <button type="button" class="close-btn" id="closeModalBtn">
+        {% if session.get('lang') == 'ru' %}
+          Закрыть
+        {% else %}
+          Close
+        {% endif %}
+      </button>
     </form>
   </div>
 
