@@ -64,6 +64,69 @@
   .side-menu-container a:hover {
     background-color: rgba(255,255,255,0.1);
   }
+  .side-menu-container a.logout {
+    color: #f44336;
+    font-weight: bold;
+  }
+  .side-menu-container a.logout:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ff6b6b;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+  .modal-content {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  .modal-content p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #4682B4;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  .modal-buttons button {
+    padding: 8px 16px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .modal-yes {
+    background-color: #f44336;
+    color: #fff;
+  }
+  .modal-yes:hover {
+    background-color: #d32f2f;
+  }
+  .modal-no {
+    background-color: #87CEEB;
+    color: #fff;
+  }
+  .modal-no:hover {
+    background-color: #4682B4;
+  }
 </style>
 
 <div class="side-menu" id="sideMenu">
@@ -79,16 +142,45 @@
   <a href="{{ url_for('routes.view_categories') }}">Categories</a>
   <a href="{{ url_for('routes.history') }}">History</a>
   <a href="{{ url_for('routes.accumulation') }}">Accumulation</a>
+  <a href="#" class="logout" id="logoutLink">Logout</a>
+</div>
+
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal-content">
+    <p>Are you sure you want to log out?</p>
+    <div class="modal-buttons">
+      <button class="modal-yes" id="logoutYes">Yes</button>
+      <button class="modal-no" id="logoutNo">No</button>
+    </div>
+  </div>
 </div>
 
 <script>
   const sideMenu = document.getElementById('sideMenu');
   const sideMenuContainer = document.getElementById('sideMenuContainer');
+  const logoutLink = document.getElementById('logoutLink');
+  const logoutModal = document.getElementById('logoutModal');
+  const logoutYes = document.getElementById('logoutYes');
+  const logoutNo = document.getElementById('logoutNo');
 
-  sideMenu.addEventListener('mouseenter', function(){
+  sideMenu.addEventListener('mouseenter', () => {
     sideMenuContainer.classList.add('active');
   });
-  sideMenuContainer.addEventListener('mouseleave', function(){
+
+  sideMenuContainer.addEventListener('mouseleave', () => {
     sideMenuContainer.classList.remove('active');
+  });
+
+  logoutLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    logoutModal.classList.add('active');
+  });
+
+  logoutNo.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  logoutYes.addEventListener('click', () => {
+    window.location.href = "{{ url_for('routes.logout') }}";
   });
 </script>

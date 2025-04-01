@@ -17,7 +17,7 @@ def home():
         if not categories:
             return redirect(url_for('routes.view_categories'))
         return render_template('spending_chart.html', categories=categories)
-    return render_template('index.html')
+    return render_template('login.html')
 
 
 @routes.route('/register', methods=['GET', 'POST'])
