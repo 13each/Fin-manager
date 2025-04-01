@@ -434,9 +434,6 @@
 
     const toggleBtn = document.getElementById("toggleLegend");
     const legendListContainer = document.getElementById("legend-list");
-    if (categoryNames.length <= 6) {
-      toggleBtn.style.display = "none";
-    }
     let expanded = true;
     toggleBtn.addEventListener("click", function() {
       if(expanded) {
