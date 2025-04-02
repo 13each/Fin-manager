@@ -408,6 +408,42 @@
     .modal-no:hover {
       background-color: #4682B4;
     }
+    @media (max-width: 480px) {
+      .new-spending-button,
+      .edit-goal-button {
+        position: static;
+        width: 90%;
+        max-width: 320px;
+        margin: 10px auto;
+        display: block;
+        font-size: 22px;
+        padding: 15px 20px;
+      }
+
+      #addMoneyBlock,
+      #editGoalBlock {
+        width: 90% !important;
+        left: 50% !important;
+        right: auto;
+        transform: translate(-50%, 100%);
+      }
+
+      #addMoneyBlock.show,
+      #editGoalBlock.show {
+        transform: translate(-50%, 0);
+      }
+
+      #addMoneyBlock .money-buttons,
+      #editGoalBlock .goal-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      #addMoneyBlock button,
+      #editGoalBlock button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
