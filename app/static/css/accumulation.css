@@ -1,0 +1,500 @@
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #FFFFFF;
+  color: #4682B4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 40px;
+  color: #4682B4;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.goal-info {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 800px;
+  margin-top: 100px;
+  margin-bottom: 20px;
+}
+
+.progress-container {
+  position: relative;
+  width: 100%;
+  height: 60px;
+  background-color: #e0e0e0;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #87CEEB;
+  width: 0;
+  transition: width 1.5s ease-out;
+}
+
+.progress-percentage {
+  font-size: 28px;
+  font-weight: bold;
+  color: #4682B4;
+  text-align: center;
+}
+
+.accumulation-form {
+  width: 350px;
+  text-align: center;
+  background-color: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  padding: 30px 40px;
+}
+
+.accumulation-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.accumulation-form input {
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #E0E0E0;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.accumulation-form input:focus {
+  outline: none;
+  border-color: #87CEEB;
+  box-shadow: 0 0 5px rgba(135,206,235,0.5);
+}
+
+.accumulation-form button {
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background-color: #87CEEB;
+  color: #FFFFFF;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.accumulation-form button:hover {
+  background-color: #4682B4;
+}
+
+.new-spending-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 20px 40px;
+  background-color: #4682B4;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  z-index: 1001;
+}
+
+.new-spending-button:hover {
+  background-color: #3a6b93;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 20px;
+  max-width: 80%;
+  height: auto;
+}
+
+.register-container {
+  background-color: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 30px 40px;
+  width: 350px;
+  text-align: center;
+}
+
+.register-container h1 {
+  margin-bottom: 20px;
+  color: #4682B4;
+}
+
+.register-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.register-container input {
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #E0E0E0;
+  border-radius: 5px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.register-container input:focus {
+  outline: none;
+  border-color: #87CEEB;
+  box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+}
+
+.register-container button {
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background-color: #87CEEB;
+  color: #FFFFFF;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.register-container button:hover {
+  background-color: #4682B4;
+}
+
+.alert {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+#addMoneyBlock {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  padding: 20px;
+  background: #fff;
+  border: 2px solid #4682B4;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  z-index: 2000;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+#addMoneyBlock.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#addMoneyBlock h2 {
+  margin-top: 0;
+  font-size: 20px;
+  text-align: center;
+  color: #4682B4;
+}
+
+#addMoneyBlock label {
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+#addMoneyBlock input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#addMoneyBlock .money-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#addMoneyBlock button {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  width: 100px;
+  cursor: pointer;
+}
+
+#confirmMoneyBtn {
+  background-color: #87CEEB;
+  color: #fff;
+}
+
+#confirmMoneyBtn:hover {
+  background-color: #4682B4;
+}
+
+#cancelMoneyBtn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+#cancelMoneyBtn:hover {
+  background-color: #d32f2f;
+}
+
+.edit-goal-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 20px 40px;
+  background-color: #4682B4;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  z-index: 1001;
+}
+
+.edit-goal-button:hover {
+  background-color: #4682B4;
+}
+
+#editGoalBlock {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 320px;
+  padding: 20px;
+  background: #fff;
+  border: 2px solid #87CEEB;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  z-index: 1002;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+#editGoalBlock.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#editGoalBlock h2 {
+  margin-top: 0;
+  font-size: 20px;
+  text-align: center;
+  color: #4682B4;
+}
+
+#editGoalBlock label {
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+#editGoalBlock input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#editGoalBlock .goal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#editGoalBlock button {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  width: 100px;
+  cursor: pointer;
+}
+
+#confirmGoalBtn {
+  background-color: #87CEEB;
+  color: #fff;
+}
+
+#confirmGoalBtn:hover {
+  background-color: #4682B4;
+}
+
+#cancelGoalBtn {
+  background-color: #fff;
+  color: #4682B4;
+  border: 1px solid #4682B4;
+}
+
+#cancelGoalBtn:hover {
+  background-color: #f0f8ff;
+}
+
+#deleteGoalBtn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+#deleteGoalBtn:hover {
+  background-color: #d32f2f;
+}
+
+.delete-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  animation: slideDown 0.5s ease forwards;
+}
+
+.delete-modal.active {
+  display: flex;
+}
+
+.delete-modal-content {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  animation: slideDown 0.5s ease forwards;
+}
+
+.delete-modal-content p {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #4682B4;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-yes {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.modal-yes:hover {
+  background-color: #d32f2f;
+}
+
+.modal-no {
+  background-color: #87CEEB;
+  color: #fff;
+}
+
+.modal-no:hover {
+  background-color: #4682B4;
+}
+
+@media (max-width: 480px) {
+  .new-spending-button,
+  .edit-goal-button {
+    position: static;
+    width: 90%;
+    max-width: 320px;
+    margin: 10px auto;
+    display: block;
+    font-size: 22px;
+    padding: 15px 20px;
+  }
+
+  #addMoneyBlock,
+  #editGoalBlock {
+    width: 90% !important;
+    left: 50% !important;
+    right: auto;
+    transform: translate(-50%, 100%);
+  }
+
+  #addMoneyBlock.show,
+  #editGoalBlock.show {
+    transform: translate(-50%, 0);
+  }
+
+  #addMoneyBlock .money-buttons,
+  #editGoalBlock .goal-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #addMoneyBlock button,
+  #editGoalBlock button {
+    width: 100%;
+  }
+}

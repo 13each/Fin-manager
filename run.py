@@ -6,7 +6,13 @@ import atexit
 app = create_app()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(archive_monthly_spending, 'cron', day=1, hour=0, minute=0)
+scheduler.add_job(
+    archive_monthly_spending,
+    trigger='cron',
+    day=1,
+    hour=0,
+    minute=0
+)
 scheduler.start()
 
 atexit.register(lambda: scheduler.shutdown())

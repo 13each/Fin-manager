@@ -1,0 +1,147 @@
+.side-menu {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  width: 50px;
+  height: 50px;
+  background-color: #4682B4;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-menu .menu-icon {
+  width: 25px;
+  height: 20px;
+  position: relative;
+}
+
+.side-menu .menu-icon span {
+  display: block;
+  background: #fff;
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  transition: 0.3s;
+}
+
+.side-menu .menu-icon span:nth-child(1) {
+  top: 0;
+}
+
+.side-menu .menu-icon span:nth-child(2) {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.side-menu .menu-icon span:nth-child(3) {
+  bottom: 0;
+}
+
+.side-menu-container {
+  position: fixed;
+  top: 0;
+  left: -220px;
+  width: 220px;
+  height: 100%;
+  background-color: #4682B4;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+  transition: left 0.3s ease;
+  z-index: 2000;
+  padding-top: 70px;
+}
+
+.side-menu-container.active {
+  left: 0;
+}
+
+.side-menu-container a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 15px 20px;
+  font-size: 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+}
+
+.side-menu-container a:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.side-menu-container a.logout {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.side-menu-container a.logout:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ff6b6b;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content p {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #4682B4;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-yes {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.modal-yes:hover {
+  background-color: #d32f2f;
+}
+
+.modal-no {
+  background-color: #87CEEB;
+  color: #fff;
+}
+
+.modal-no:hover {
+  background-color: #4682B4;
+}

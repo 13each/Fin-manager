@@ -1,0 +1,243 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  margin: 20px;
+  padding: 20px;
+  color: #4682B4;
+}
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 32px;
+  color: #4682B4;
+}
+.categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.category-block {
+  opacity: 0;
+  animation: slideDown 0.5s ease forwards;
+}
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.category-block {
+  background: #fff;
+  border: 2px solid #87CEEB;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.category-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.col {
+  flex: 1;
+  text-align: center;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #ccc;
+}
+.col:last-child {
+  border-right: none;
+}
+.cat-name, .cat-limit {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4682B4;
+}
+.cat-color {
+  width: 100px;
+  height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 0 auto;
+}
+.category-actions {
+  margin-top: 10px;
+  text-align: center;
+}
+.edit-btn, .delete-btn {
+  font-size: 16px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100px;
+  text-align: center;
+}
+.edit-btn {
+  background-color: #87CEEB;
+  color: #fff;
+}
+
+.edit-btn:hover {
+  background-color: #4682B4;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+.delete-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.delete-modal.active {
+  display: flex;
+}
+
+.delete-modal-content {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  animation: slideDown 0.5s ease forwards;
+}
+
+.delete-modal-content p {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #4682B4;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-yes {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.modal-yes:hover {
+  background-color: #d32f2f;
+}
+
+.modal-no {
+  background-color: #87CEEB;
+  color: #fff;
+}
+
+.modal-no:hover {
+  background-color: #4682B4;
+}
+
+.add-category-block {
+  background: #fff;
+  border: 2px dashed #87CEEB;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.add-category-block:hover {
+  background: #f0f8ff;
+}
+
+.add-category-form {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.add-col {
+  flex: 1;
+  text-align: center;
+  border-right: 1px solid #ccc;
+}
+
+.add-col:last-child {
+  border-right: none;
+}
+
+.add-category-form input[type="text"],
+.add-category-form input[type="number"] {
+  padding: 4px 6px;
+  font-size: 14px;
+  width: 100px;
+  box-sizing: border-box;
+}
+
+.add-category-form input[type="color"] {
+  width: 100px;
+  height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.add-category-form button {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100px;
+  text-align: center;
+}
+
+.confirm-btn {
+  background-color: #87CEEB;
+  color: #fff;
+}
+
+.confirm-btn:hover {
+  background-color: #4682B4;
+}
+
+.cancel-btn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.cancel-btn:hover {
+  background-color: #d32f2f;
+}

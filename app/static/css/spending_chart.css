@@ -1,0 +1,247 @@
+body {
+  font-family: Arial, sans-serif;
+  color: #4682B4;
+  margin: 20px;
+  position: relative;
+}
+
+h1 {
+  display: inline-block;
+  text-align: center;
+  padding: 5px 10px;
+  border: 1px solid #4682B4;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #87CEEB, #4682B4);
+  color: #fff;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 500px;
+  margin: 40px auto;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.legend {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 250px;
+  border: 2px solid #4682B4;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fff;
+  text-align: left;
+  font-size: 18px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  z-index: 1500;
+}
+
+.legend-list {
+  overflow-y: auto;
+  max-height: 240px;
+  transition: max-height 0.5s ease;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+}
+
+.legend-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.legend-buttons button {
+  font-size: 18px;
+  padding: 5px 10px;
+  border: 1px solid #4682B4;
+  border-radius: 4px;
+  background-color: #4682B4;
+  color: #fff;
+  cursor: pointer;
+}
+
+.legend-buttons button:hover {
+  background-color: #3a6b93;
+}
+
+#toggleLegend {
+  width: 40px;
+  text-align: center;
+}
+
+.legend-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.legend-list::-webkit-scrollbar-thumb {
+  background-color: #4682B4;
+  border-radius: 3px;
+}
+
+.new-spending-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 15px 30px;
+  background-color: #4682B4;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+}
+
+.new-spending-button:hover {
+  background-color: #3a6b93;
+}
+
+#newSpendingModal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  padding: 20px;
+  background: #fff;
+  border: 2px solid #4682B4;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+#newSpendingModal.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#newSpendingModal h2 {
+  margin-top: 0;
+  font-size: 20px;
+  text-align: center;
+  color: #4682B4;
+}
+
+#newSpendingModal label {
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.custom-select {
+  position: relative;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #fff;
+  margin-top: 5px;
+}
+
+.custom-select .selected-option {
+  padding: 8px;
+}
+
+.custom-select .options-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border: 1px solid #ccc;
+  background: #fff;
+  z-index: 10;
+  max-height: 150px;
+  overflow-y: auto;
+  display: none;
+}
+
+.custom-select.open .options-container {
+  display: block;
+}
+
+.custom-select .option {
+  padding: 8px;
+}
+
+.custom-select .option:hover {
+  background: #f0f0f0;
+}
+
+#newSpendingModal select,
+#newSpendingModal input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#newSpendingModal button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4682B4;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#newSpendingModal button:hover {
+  background-color: #3a6b93;
+}
+
+#newSpendingModal .close-btn {
+  background-color: #fff;
+  color: #4682B4;
+  border: 1px solid #4682B4;
+  margin-top: 10px;
+}
+
+#successMessage {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #87CEEB;
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  z-index: 1500;
+}
+
+#successMessage.show {
+  opacity: 1;
+  transform: translateY(0);
+}

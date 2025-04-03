@@ -1,0 +1,113 @@
+body {
+  font-family: Arial, sans-serif;
+  color: #4682B4;
+  margin: 20px;
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  font-size: 32px;
+  color: #4682B4;
+  margin-bottom: 20px;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 500px;
+  margin: 40px auto;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.legend {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 250px;
+  border: 2px solid #4682B4;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fff;
+  font-size: 18px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  z-index: 1500;
+}
+
+.legend-list {
+  overflow-y: auto;
+  max-height: 240px;
+  transition: max-height 0.5s ease;
+  margin-bottom: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+}
+
+.legend-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.legend-buttons button {
+  font-size: 18px;
+  padding: 5px 10px;
+  border: 1px solid #4682B4;
+  border-radius: 4px;
+  background-color: #4682B4;
+  color: #fff;
+  cursor: pointer;
+}
+
+.legend-buttons button:hover {
+  background-color: #3a6b93;
+}
+
+#toggleLegend {
+  width: 40px;
+  text-align: center;
+}
+
+.arcOutline {
+  fill: none;
+  stroke: rgba(100,100,100,0.8);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.back-history-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 15px 30px;
+  background-color: #4682B4;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  z-index: 1001;
+}
+
+.back-history-button:hover {
+  background-color: #3a6b93;
+}

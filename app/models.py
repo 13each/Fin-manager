@@ -31,15 +31,15 @@ def init_db():
     ''')
 
     cursor.execute('''
-            CREATE TABLE IF NOT EXISTS accumulation (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                goal_name TEXT NOT NULL,
-                accumulated REAL DEFAULT 0,
-                total REAL NOT NULL,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )
-        ''')
+        CREATE TABLE IF NOT EXISTS accumulation (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            goal_name TEXT NOT NULL,
+            accumulated REAL DEFAULT 0,
+            total REAL NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
 
     conn.commit()
     conn.close()
@@ -57,14 +57,17 @@ def get_user_by_email(email):
 def update_categories(email, categories):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
     row = cursor.fetchone()
     if not row:
         conn.close()
         return
+
     user_id = row[0]
-    cursor.execute('UPDATE spending SET current_categories = ? WHERE user_id = ?',
-                   (json.dumps(categories), user_id))
+    cursor.execute(
+        'UPDATE spending SET current_categories = ? WHERE user_id = ?',
+        (json.dumps(categories), user_id)
+    )
     conn.commit()
     conn.close()
 
@@ -72,13 +75,14 @@ def update_categories(email, categories):
 def get_categories(email):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
     row = cursor.fetchone()
     if not row:
         conn.close()
         return {}
+
     user_id = row[0]
-    cursor.execute("SELECT current_categories FROM spending WHERE user_id = ?", (user_id,))
+    cursor.execute('SELECT current_categories FROM spending WHERE user_id = ?', (user_id,))
     row = cursor.fetchone()
     conn.close()
     return json.loads(row[0]) if row and row[0] else {}
@@ -95,7 +99,10 @@ def confirm_user_email(email):
 def update_user_password(email, new_hashed_password):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('UPDATE users SET password = ? WHERE email = ?', (new_hashed_password, email))
+    cursor.execute(
+        'UPDATE users SET password = ? WHERE email = ?',
+        (new_hashed_password, email)
+    )
     conn.commit()
     conn.close()
 
@@ -104,10 +111,11 @@ def archive_monthly_spending():
     now = datetime.datetime.now()
     year = now.year
     month = now.month
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, current_categories, monthly_history FROM spending")
+    cursor.execute('SELECT id, current_categories, monthly_history FROM spending')
     records = cursor.fetchall()
 
     for rec in records:
@@ -120,6 +128,7 @@ def archive_monthly_spending():
             "month": month,
             "categories": copy.deepcopy(current_categories)
         }
+
         monthly_history.append(snapshot)
         if len(monthly_history) > 12:
             monthly_history = monthly_history[-12:]
@@ -128,7 +137,7 @@ def archive_monthly_spending():
             data["spent"] = 0
 
         cursor.execute(
-            "UPDATE spending SET current_categories = ?, monthly_history = ? WHERE id = ?",
+            'UPDATE spending SET current_categories = ?, monthly_history = ? WHERE id = ?',
             (json.dumps(current_categories), json.dumps(monthly_history), spending_id)
         )
 
@@ -139,13 +148,14 @@ def archive_monthly_spending():
 def get_monthly_history(email):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
     row = cursor.fetchone()
     if not row:
         conn.close()
         return []
+
     user_id = row[0]
-    cursor.execute("SELECT monthly_history FROM spending WHERE user_id = ?", (user_id,))
+    cursor.execute('SELECT monthly_history FROM spending WHERE user_id = ?', (user_id,))
     row = cursor.fetchone()
     conn.close()
     return json.loads(row[0]) if row and row[0] else []
@@ -154,7 +164,10 @@ def get_monthly_history(email):
 def get_accumulation(user_email):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM accumulation WHERE user_id = (SELECT id FROM users WHERE email = ?)', (user_email,))
+    cursor.execute(
+        'SELECT * FROM accumulation WHERE user_id = (SELECT id FROM users WHERE email = ?)',
+        (user_email,)
+    )
     row = cursor.fetchone()
     conn.close()
     return row
@@ -163,11 +176,15 @@ def get_accumulation(user_email):
 def add_accumulation(user_email, goal_name, total):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE email = ?", (user_email,))
+    cursor.execute('SELECT id FROM users WHERE email = ?', (user_email,))
     user_row = cursor.fetchone()
+
     if user_row:
         user_id = user_row[0]
-        cursor.execute("INSERT INTO accumulation (user_id, goal_name, total) VALUES (?, ?, ?)",
-                       (user_id, goal_name, total))
+        cursor.execute(
+            'INSERT INTO accumulation (user_id, goal_name, total) VALUES (?, ?, ?)',
+            (user_id, goal_name, total)
+        )
         conn.commit()
+
     conn.close()

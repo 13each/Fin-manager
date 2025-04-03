@@ -1,125 +1,35 @@
 <!DOCTYPE html>
 <html lang="{{ 'ru' if session.get('lang') == 'ru' else 'en' }}">
 <head>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <meta charset="UTF-8">
+  <title>
     {% if session.get('lang') == 'ru' %}
       {% set monthNames = {1:"Январь", 2:"Февраль", 3:"Март", 4:"Апрель", 5:"Май", 6:"Июнь", 7:"Июль", 8:"Август", 9:"Сентябрь", 10:"Октябрь", 11:"Ноябрь", 12:"Декабрь"} %}
     {% else %}
       {% set monthNames = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June", 7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"} %}
     {% endif %}
-  <title>{{ monthNames[month] }} {{ year }}</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      color: #4682B4;
-      margin: 20px;
-      position: relative;
-    }
-    .header {
-      text-align: center;
-      font-size: 32px;
-      color: #4682B4;
-      margin-bottom: 20px;
-    }
-    .chart-wrapper {
-      position: relative;
-      width: 500px;
-      margin: 40px auto;
-    }
-    svg {
-      width: 100%;
-      height: auto;
-      overflow: visible;
-    }
-    .legend {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 250px;
-      border: 2px solid #4682B4;
-      border-radius: 8px;
-      padding: 10px;
-      background-color: #fff;
-      font-size: 18px;
-      line-height: 1.5;
-      display: flex;
-      flex-direction: column;
-      max-height: 400px;
-      z-index: 1500;
-    }
-    .legend-list {
-      overflow-y: auto;
-      max-height: 240px;
-      transition: max-height 0.5s ease;
-      margin-bottom: 10px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .legend-color {
-      width: 20px;
-      height: 20px;
-      margin-right: 10px;
-      border: 1px solid #ccc;
-    }
-    .legend-buttons {
-      display: flex;
-      justify-content: space-between;
-    }
-    .legend-buttons button {
-      font-size: 18px;
-      padding: 5px 10px;
-      border: 1px solid #4682B4;
-      border-radius: 4px;
-      background-color: #4682B4;
-      color: #fff;
-      cursor: pointer;
-    }
-    .legend-buttons button:hover {
-      background-color: #3a6b93;
-    }
-    #toggleLegend {
-      width: 40px;
-      text-align: center;
-    }
-    .arcOutline {
-      fill: none;
-      stroke: rgba(100,100,100,0.8);
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .back-history-button {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      padding: 15px 30px;
-      background-color: #4682B4;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-      z-index: 1001;
-    }
-    .back-history-button:hover {
-      background-color: #3a6b93;
-    }
-  </style>
+    {{ monthNames[month] }} {{ year }}
+  </title>
+
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/background.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/history_chart.css') }}">
 </head>
 <body>
-  {% include 'background.html' %}
   {% include 'side_menu.html' %}
 
   <div class="header">
     {{ monthNames[month] }} {{ year }}
   </div>
 
-  <div class="chart-wrapper" id="chart-wrapper">
+  <div
+    class="chart-wrapper"
+    id="chart-wrapper"
+    data-chart='{{ chart_data.data | tojson | safe }}'
+    data-bg-colors='{{ chart_data.backgroundColors | tojson | safe }}'
+    data-labels='{{ chart_data.categoryLabels | tojson | safe }}'
+    data-legend='{{ chart_data.legend | tojson | safe }}'
+  >
     <svg id="chart" viewBox="-10 -10 520 520">
       <defs>
         <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -137,7 +47,9 @@
   <div class="legend" id="legend">
     <div class="legend-list" id="legend-list"></div>
     <div class="legend-buttons">
-      <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">{% if session.get('lang') == 'ru' %}Категории{% else %}Categories{% endif %}</button>
+      <button onclick="window.location.href='{{ url_for('routes.view_categories') }}'">
+        {% if session.get('lang') == 'ru' %}Категории{% else %}Categories{% endif %}
+      </button>
       <button id="toggleLegend">−</button>
     </div>
   </div>
@@ -147,100 +59,6 @@
   </button>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script>
-    function sanitizeId(str) {
-      return str.replace(/[^a-zA-Z0-9_-]/g, "");
-    }
-
-    let data = {{ chart_data.data | tojson }};
-    let bgColors = {{ chart_data.backgroundColors | tojson }};
-    let categoryLabels = {{ chart_data.categoryLabels | tojson }};
-    let legendData = {{ chart_data.legend | tojson }};
-
-    const viewWidth = 500, viewHeight = 500, offset = 10;
-    const centerX = viewWidth / 2 + offset;
-    const centerY = viewHeight / 2 + offset;
-    const fullRadius = Math.min(viewWidth, viewHeight) / 2;
-
-    const svg = d3.select("#chart")
-                  .attr("width", viewWidth)
-                  .attr("height", viewHeight)
-                  .append("g")
-                  .attr("transform", `translate(${centerX}, ${centerY})`)
-                  .style("filter", "url(#dropShadow)");
-
-    let dataset = [];
-    for (let i = 0; i < categoryLabels.length; i++) {
-      let clampedSpent = data[i * 2];
-      let total = data[i * 2] + data[i * 2 + 1];
-      dataset.push({
-        category: categoryLabels[i],
-        diagramSpent: clampedSpent,
-        total: total,
-        color: bgColors[i * 2]
-      });
-    }
-
-    const pie = d3.pie()
-                  .value(d => d.total)
-                  .sort(null);
-    const arcs = pie(dataset);
-
-    svg.selectAll(".arcSpent")
-       .data(arcs)
-       .enter()
-       .append("path")
-       .attr("class", "arcSpent")
-       .attr("fill", d => d.data.color)
-       .attr("d", d3.arc().innerRadius(0).outerRadius(0))
-       .transition()
-       .duration(1500)
-       .ease(d3.easeCubicInOut)
-       .attrTween("d", function(d) {
-         const fillFraction = d.data.total > 0 ? Math.min(d.data.diagramSpent / d.data.total, 1) : 0;
-         const targetRadius = fullRadius * fillFraction;
-         const interpolate = d3.interpolate(0, targetRadius);
-         const arcGen = d3.arc().innerRadius(0).cornerRadius(8);
-         return function(t) {
-           return arcGen.outerRadius(interpolate(t))(d);
-         };
-       });
-
-    svg.selectAll(".arcOutline")
-       .data(arcs)
-       .enter()
-       .append("path")
-       .attr("class", "arcOutline")
-       .attr("d", d3.arc().innerRadius(0).outerRadius(fullRadius));
-
-    const legendList = d3.select("#legend-list");
-    const legendItems = legendList.selectAll(".legend-item")
-      .data(legendData)
-      .enter()
-      .append("div")
-      .attr("class", "legend-item")
-      .style("margin-bottom", "8px");
-
-    legendItems.append("div")
-      .attr("class", "legend-color")
-      .style("background-color", d => d.color);
-
-    legendItems.append("div")
-      .text(d => d.category + ": " + d.spent + " / " + d.limit);
-
-    const toggleBtn = document.getElementById("toggleLegend");
-    const legendListContainer = document.getElementById("legend-list");
-    let expanded = true;
-    toggleBtn.addEventListener("click", function() {
-      if(expanded) {
-        legendListContainer.style.maxHeight = "0px";
-        toggleBtn.textContent = "+";
-      } else {
-        legendListContainer.style.maxHeight = "240px";
-        toggleBtn.textContent = "−";
-      }
-      expanded = !expanded;
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/history_chart.js') }}"></script>
 </body>
 </html>
