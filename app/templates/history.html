@@ -13,7 +13,15 @@
   <h1>{% if session.get('lang') == 'ru' %}История{% else %}History{% endif %}</h1>
 
   {% if summaries|length == 0 %}
-    <div class="empty-message">{% if session.get('lang') == 'ru' %}История пуста{% else %}History is empty{% endif %}</div>
+    <div class="empty-message-block">
+      <div class="empty-message-text">
+        {% if session.get('lang') == 'ru' %}
+          История пуста
+        {% else %}
+          History is empty
+        {% endif %}
+      </div>
+    </div>
   {% else %}
     {% if session.get('lang') == 'ru' %}
         {% set monthNames = {1:"Январь", 2:"Февраль", 3:"Март", 4:"Апрель", 5:"Май", 6:"Июнь", 7:"Июль", 8:"Август", 9:"Сентябрь", 10:"Октябрь", 11:"Ноябрь", 12:"Декабрь"} %}
