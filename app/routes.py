@@ -88,14 +88,14 @@ def login():
         password = request.form['password']
 
         user = get_user_by_email(email)
-        if not user or not bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
+        if not user or not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             if session.get('lang') == 'ru':
                 flash("Неверный email или пароль", "error")
             else:
                 flash("Invalid email or password", "error")
             return redirect(url_for('routes.login'))
 
-        if user[3] == 0:
+        if user['confirmed'] == 0:
             if session.get('lang') == 'ru':
                 flash("Ваш email не подтвержден. Пожалуйста, проверьте почту.", "error")
             else:
@@ -582,7 +582,7 @@ def update_goal():
     if not accum:
         return redirect(url_for('routes.accumulation'))
 
-    accum_id = accum[0]
+    accum_id = accum['id']
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -603,7 +603,7 @@ def delete_goal():
 
     accum = get_accumulation(session['user_email'])
     if accum:
-        accum_id = accum[0]
+        accum_id = accum['id']
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute('DELETE FROM accumulation WHERE id = %s', (accum_id,))

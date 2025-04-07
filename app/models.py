@@ -46,14 +46,14 @@ def init_db():
 
 def get_user_by_email(email):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
             return cursor.fetchone()
 
 
 def update_categories(email, categories):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute('SELECT id FROM users WHERE email = %s', (email,))
             row = cursor.fetchone()
             if not row:
@@ -67,7 +67,7 @@ def update_categories(email, categories):
 
 def get_categories(email):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute('SELECT id FROM users WHERE email = %s', (email,))
             row = cursor.fetchone()
             if not row:
@@ -80,13 +80,13 @@ def get_categories(email):
 
 def confirm_user_email(email):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute('UPDATE users SET confirmed = TRUE WHERE email = %s', (email,))
 
 
 def update_user_password(email, new_hashed_password):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 'UPDATE users SET password = %s WHERE email = %s',
                 (new_hashed_password, email)
@@ -99,7 +99,7 @@ def archive_monthly_spending():
     month = now.month
 
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute('SELECT id, current_categories, monthly_history FROM spending')
             records = cursor.fetchall()
 
@@ -129,7 +129,7 @@ def archive_monthly_spending():
 
 def get_monthly_history(email):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute('SELECT id FROM users WHERE email = %s', (email,))
             row = cursor.fetchone()
             if not row:
@@ -142,7 +142,7 @@ def get_monthly_history(email):
 
 def get_accumulation(user_email):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 'SELECT * FROM accumulation WHERE user_id = (SELECT id FROM users WHERE email = %s)',
                 (user_email,)
@@ -152,7 +152,7 @@ def get_accumulation(user_email):
 
 def add_accumulation(user_email, goal_name, total):
     with get_connection() as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute('SELECT id FROM users WHERE email = %s', (user_email,))
             user_row = cursor.fetchone()
             if user_row:
