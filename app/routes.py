@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 import bcrypt
 import random
 from flask import (
@@ -11,7 +11,7 @@ from app import mail
 from app.models import (
     get_user_by_email, update_categories, get_categories,
     update_user_password, get_monthly_history,
-    add_accumulation, get_accumulation, DB_PATH
+    add_accumulation, get_accumulation, get_connection
 )
 
 routes = Blueprint('routes', __name__)
@@ -333,22 +333,23 @@ def confirm_email():
         pending_data = session.get('pending_registration')
 
         if not pending_data:
-            if session.get('lang') == 'ru':
-                flash("Данный email не найден. Пожалуйста, попробуйте ещё раз.", "error")
-            else:
-                flash("No registration data found. Please register again.", "error")
+            msg = "Данный email не найден. Пожалуйста, попробуйте ещё раз." if session.get(
+                'lang') == 'ru' else "No registration data found. Please register again."
+            flash(msg, "error")
             return redirect(url_for('routes.register'))
 
         if entered_code == pending_data['code']:
-            conn = sqlite3.connect(DB_PATH)
+            conn = get_connection()
             cursor = conn.cursor()
+
             cursor.execute(
-                'INSERT INTO users (email, password, confirmed) VALUES (?, ?, 1)',
-                (pending_data['email'], pending_data['password'])
+                'INSERT INTO users (email, password, confirmed) VALUES (%s, %s, %s) RETURNING id',
+                (pending_data['email'], pending_data['password'], True)
             )
-            user_id = cursor.lastrowid
+            user_id = cursor.fetchone()[0]
+
             cursor.execute(
-                'INSERT INTO spending (user_id, current_categories, monthly_history) VALUES (?, ?, ?)',
+                'INSERT INTO spending (user_id, current_categories, monthly_history) VALUES (%s, %s, %s)',
                 (user_id, '{}', '[]')
             )
             conn.commit()
@@ -357,10 +358,8 @@ def confirm_email():
             session.pop('pending_registration', None)
             return redirect(url_for('routes.login'))
         else:
-            if session.get('lang') == 'ru':
-                flash("Неверный код подтверждения!", "error")
-            else:
-                flash("Invalid confirmation code!", "error")
+            msg = "Неверный код подтверждения!" if session.get('lang') == 'ru' else "Invalid confirmation code!"
+            flash(msg, "error")
 
     return render_template('confirm_email.html')
 
@@ -549,20 +548,16 @@ def add_money():
         return redirect(url_for('routes.accumulation'))
 
     accum = get_accumulation(session['user_email'])
-
     if not accum:
         return redirect(url_for('routes.accumulation'))
 
     accum_id, _, _, current_accumulated, total = accum
-    new_accumulated = current_accumulated + amount
+    new_accumulated = min(current_accumulated + amount, total)
 
-    if new_accumulated > total:
-        new_accumulated = total
-
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        'UPDATE accumulation SET accumulated = ? WHERE id = ?',
+        'UPDATE accumulation SET accumulated = %s WHERE id = %s',
         (new_accumulated, accum_id)
     )
     conn.commit()
@@ -584,16 +579,15 @@ def update_goal():
         return redirect(url_for('routes.accumulation'))
 
     accum = get_accumulation(session['user_email'])
-
     if not accum:
         return redirect(url_for('routes.accumulation'))
 
     accum_id = accum[0]
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        'UPDATE accumulation SET goal_name = ?, total = ? WHERE id = ?',
+        'UPDATE accumulation SET goal_name = %s, total = %s WHERE id = %s',
         (new_goal_name, new_total, accum_id)
     )
     conn.commit()
@@ -608,15 +602,11 @@ def delete_goal():
         return redirect(url_for('routes.login'))
 
     accum = get_accumulation(session['user_email'])
-
     if accum:
         accum_id = accum[0]
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            'DELETE FROM accumulation WHERE id = ?',
-            (accum_id,)
-        )
+        cursor.execute('DELETE FROM accumulation WHERE id = %s', (accum_id,))
         conn.commit()
         conn.close()
 
