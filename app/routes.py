@@ -346,7 +346,7 @@ def confirm_email():
                 'INSERT INTO users (email, password, confirmed) VALUES (%s, %s, %s) RETURNING id',
                 (pending_data['email'], pending_data['password'], True)
             )
-            user_id = cursor.fetchone()[0]
+            user_id = cursor.fetchone()['id']
 
             cursor.execute(
                 'INSERT INTO spending (user_id, current_categories, monthly_history) VALUES (%s, %s, %s)',
