@@ -551,7 +551,9 @@ def add_money():
     if not accum:
         return redirect(url_for('routes.accumulation'))
 
-    accum_id, _, _, current_accumulated, total = accum
+    accum_id = accum['id']
+    current_accumulated = accum['accumulated']
+    total = accum['total']
     new_accumulated = min(current_accumulated + amount, total)
 
     conn = get_connection()
