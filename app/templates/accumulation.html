@@ -13,9 +13,9 @@
 
   {% if accumulation %}
     <button class="new-spending-button" id="addMoneyBtn">{% if session.get('lang') == 'ru' %}Пополнить{% else %}Add{% endif %}</button>
-    {% set goal_name = accumulation[2] %}
-    {% set accumulated = accumulation[3] %}
-    {% set total = accumulation[4] %}
+    {% set goal_name = accumulation['goal_name'] %}
+    {% set accumulated = accumulation['accumulated'] %}
+    {% set total = accumulation['total'] %}
     {% if total > 0 %}
       {% set percent = (accumulated / total * 100) | round(0, 'ceil') %}
     {% else %}
