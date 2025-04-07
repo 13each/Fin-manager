@@ -65,6 +65,11 @@
           <button class="cancel-btn" id="cancelAddCat">{{ 'Отмена' if session.get('lang') == 'ru' else 'Cancel' }}</button>
         </div>
       </div>
+        <div class="add-cat-error-wrapper">
+          <div id="addCatError" class="add-cat-error" style="display: none;">
+            {{ 'Не удалось добавить категорию' if session.get('lang') == 'ru' else 'Failed to add category' }}
+          </div>
+        </div>
     </div>
   </div>
 

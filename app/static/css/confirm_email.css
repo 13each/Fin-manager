@@ -11,6 +11,7 @@ body {
   min-height: 100vh;
 }
 
+/* Лого приложения. */
 .logo {
   display: block;
   margin: 0 auto 20px;
@@ -18,6 +19,7 @@ body {
   height: auto;
 }
 
+/* Стилизация для блока подтверждения. */
 .confirm-container {
   background-color: #FFFFFF;
   border: 1px solid #E0E0E0;
@@ -29,16 +31,19 @@ body {
   margin-top: 20px;
 }
 
+/* Заголовок внутри блока. */
 .confirm-container h1 {
   margin-bottom: 20px;
   color: #4682B4;
 }
 
+/* Форма блока. */
 .confirm-container form {
   display: flex;
   flex-direction: column;
 }
 
+/* Поля ввода. */
 .confirm-container input {
   padding: 12px;
   margin-bottom: 15px;
@@ -49,12 +54,14 @@ body {
   background-color: #F9F9F9;
 }
 
+/* Подсветка при вводе в полях. */
 .confirm-container input:focus {
   outline: none;
   border-color: #87CEEB;
   box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
 }
 
+/* Кнопка подтверждения. */
 .confirm-container button {
   padding: 12px;
   border: none;
@@ -66,10 +73,12 @@ body {
   transition: background-color 0.3s ease;
 }
 
+/* Потемнение кнопки при наведении. */
 .confirm-container button:hover {
   background-color: #4682B4;
 }
 
+/* Уведомления. */
 .alert {
   padding: 10px;
   margin-bottom: 15px;
@@ -78,16 +87,19 @@ body {
   text-align: left;
 }
 
+/* Уведомление успеха. */
 .alert-success {
   background-color: #d4edda;
   color: #155724;
 }
 
+/* Уведомление ошибки. */
 .alert-error {
   background-color: #f8d7da;
   color: #721c24;
 }
 
+/* Ссылка "Назад к регистрации". */
 .confirm-container .link {
   display: block;
   margin-top: 15px;
@@ -96,7 +108,7 @@ body {
   color: #4682B4;
 }
 
+/* Подчеркивание ссылки при наведении. */
 .confirm-container .link:hover {
   text-decoration: underline;
 }
-

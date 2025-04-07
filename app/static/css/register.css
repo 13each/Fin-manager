@@ -11,6 +11,7 @@ body {
   min-height: 100vh;
 }
 
+/* Лого приложения. */
 .logo {
   display: block;
   margin: 0 auto 20px;
@@ -18,6 +19,7 @@ body {
   height: auto;
 }
 
+/* Блок регистрации. */
 .register-container {
   background-color: #FFFFFF;
   border: 1px solid #E0E0E0;
@@ -28,16 +30,19 @@ body {
   text-align: center;
 }
 
+/* Заголовок блока. */
 .register-container h1 {
   margin-bottom: 20px;
   color: #4682B4;
 }
 
+/* Расположениие элементов блока. */
 .register-container form {
   display: flex;
   flex-direction: column;
 }
 
+/* Поля ввода. */
 .register-container input {
   padding: 12px;
   margin-bottom: 15px;
@@ -48,12 +53,14 @@ body {
   box-sizing: border-box;
 }
 
+/* Подсветка при вводе в полях. */
 .register-container input:focus {
   outline: none;
   border-color: #87CEEB;
   box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
 }
 
+/* Кнопка регистрации. */
 .register-container button {
   padding: 12px;
   border: none;
@@ -64,10 +71,12 @@ body {
   cursor: pointer;
 }
 
+/* Потемнение кнопки при наведении. */
 .register-container button:hover {
   background-color: #4682B4;
 }
 
+/* Стилизация flash-сообщений. */
 .alert {
   padding: 10px;
   margin-bottom: 15px;
@@ -76,16 +85,19 @@ body {
   text-align: left;
 }
 
+/* Сообщение об успехе. */
 .alert-success {
   background-color: #d4edda;
   color: #155724;
 }
 
+/* Сообщение об ошибке. */
 .alert-error {
   background-color: #f8d7da;
   color: #721c24;
 }
 
+/* Ссылки под формой. */
 .register-container .link {
   margin-top: 15px;
   font-size: 14px;
@@ -93,6 +105,7 @@ body {
   color: #4682B4;
 }
 
+/* Подчеркивание ссылки при наведении. */
 .register-container .link:hover {
   text-decoration: underline;
 }

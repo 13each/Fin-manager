@@ -1,23 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Получение данных цели накопления.
   const dataEl = document.getElementById("accumulation-data");
 
+  // Проверка, если цель у пользователя.
   const hasAccumulation = dataEl?.dataset.accumulation === "true";
+  // Парсинг значений.
   const finalPercent = parseFloat(dataEl?.dataset.percent || 0);
   const finalAccumulated = parseFloat(dataEl?.dataset.accumulated || 0);
   const total = parseFloat(dataEl?.dataset.total || 0);
   const lang = dataEl?.dataset.lang || "en";
   const goalName = dataEl?.dataset.goalName || "";
 
+  // Анимация роста чисел с нуля.
   function animateValue(element, start, end, duration, formatter) {
     let startTimestamp = null;
+
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
       element.innerText = formatter(start + progress * (end - start));
+
       if (progress < 1) {
         window.requestAnimationFrame(step);
       }
     };
+
     window.requestAnimationFrame(step);
   }
 
@@ -26,13 +33,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const progressPercentageEl = document.getElementById("progressPercentage");
     const goalInfoEl = document.getElementById("goalInfo");
 
+    // Время увеличения значений.
     setTimeout(() => {
       progressFillEl.style.width = finalPercent + "%";
     }, 100);
 
+    // Анимация процентов и накопленной суммы.
     animateValue(progressPercentageEl, 0, finalPercent, 1000, (value) => Math.round(value) + "%");
     animateValue(goalInfoEl, 0, finalAccumulated, 1000, (value) => Math.round(value) + " / " + total);
 
+    // Мотивационные сообщения.
     const motivationalMessages = {
       en: {
         low: [
@@ -96,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     };
 
+    // Определение отрезка для мотивационного сообщения.
     let messageCategory = 'low';
     if (finalPercent >= 100) {
       messageCategory = 'complete';
@@ -105,18 +116,25 @@ document.addEventListener("DOMContentLoaded", function () {
       messageCategory = 'mid';
     }
 
+    // Отображение случайного сообщения из подходящего отрезка.
     const messages = motivationalMessages[lang][messageCategory];
     const randomIndex = Math.floor(Math.random() * messages.length);
     document.getElementById("motivationalMessage").textContent = messages[randomIndex];
   }
 
+  // Блок добавления суммы.
   const addMoneyBtn = document.getElementById("addMoneyBtn");
   const addMoneyBlock = document.getElementById("addMoneyBlock");
   const cancelMoneyBtn = document.getElementById("cancelMoneyBtn");
   const confirmMoneyBtn = document.getElementById("confirmMoneyBtn");
 
+  // Открытие.
   addMoneyBtn?.addEventListener("click", () => addMoneyBlock?.classList.add("show"));
+
+  // Закрытие.
   cancelMoneyBtn?.addEventListener("click", () => addMoneyBlock?.classList.remove("show"));
+
+  // Отправка суммы на сервер и перезагрузка страницы.
   confirmMoneyBtn?.addEventListener("click", () => {
     const amount = document.getElementById("addMoneyInput").value;
     fetch("/add_money", {
@@ -130,6 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(() => alert("Error adding money"));
   });
 
+  // Блок редактирования цели.
   const editGoalBtn = document.getElementById("editGoalBtn");
   const editGoalBlock = document.getElementById("editGoalBlock");
   const cancelGoalBtn = document.getElementById("cancelGoalBtn");
@@ -138,9 +157,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const editGoalNameInput = document.getElementById("editGoalName");
   const editGoalTotalInput = document.getElementById("editGoalTotal");
 
+  // Открытие.
   editGoalBtn?.addEventListener("click", () => editGoalBlock?.classList.add("show"));
+
+  // Закрытие.
   cancelGoalBtn?.addEventListener("click", () => editGoalBlock?.classList.remove("show"));
 
+  // Отправка новых данных о цели накопления и перезагрузка страницы.
   confirmGoalBtn?.addEventListener("click", () => {
     const newGoalName = editGoalNameInput.value;
     const newTotal = editGoalTotalInput.value;
@@ -159,10 +182,12 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(() => alert("Error updating goal"));
   });
 
+  // Блок подтверждения удаления.
   deleteGoalBtn?.addEventListener("click", () => {
     document.getElementById("deleteGoalModal")?.classList.add("active");
   });
 
+  // Отправка запроса удаления.
   document.getElementById("modalGoalYes")?.addEventListener("click", () => {
     fetch("/delete_goal", {
       method: "POST",
@@ -174,6 +199,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(() => alert("Error deleting goal"));
   });
 
+  // Отмена удаления.
   document.getElementById("modalGoalNo")?.addEventListener("click", () => {
     document.getElementById("deleteGoalModal")?.classList.remove("active");
   });

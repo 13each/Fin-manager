@@ -5,6 +5,7 @@ body {
   position: relative;
 }
 
+/* Заголовок. */
 h1 {
   display: inline-block;
   text-align: center;
@@ -17,18 +18,21 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Обёртка для диаграммы. */
 .chart-wrapper {
   position: relative;
   width: 500px;
   margin: 40px auto;
 }
 
+/* Диаграмма. */
 svg {
   width: 100%;
   height: auto;
   overflow: visible;
 }
 
+/* Блок легенды. */
 .legend {
   position: fixed;
   top: 20px;
@@ -47,12 +51,14 @@ svg {
   z-index: 1500;
 }
 
+/* Контейнер, со списком категорий. */
 .legend-list {
   overflow-y: auto;
   max-height: 240px;
   transition: max-height 0.5s ease;
 }
 
+/* Категория в легенде. */
 .legend-item {
   display: flex;
   align-items: center;
@@ -61,6 +67,7 @@ svg {
   transform: translateY(-20px);
 }
 
+/* Цвет категории. */
 .legend-color {
   width: 20px;
   height: 20px;
@@ -68,12 +75,14 @@ svg {
   border: 1px solid #ccc;
 }
 
+/* Кнопки легенды. */
 .legend-buttons {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
 }
 
+/* Стилизация кнопок легенды. */
 .legend-buttons button {
   font-size: 18px;
   padding: 5px 10px;
@@ -84,15 +93,18 @@ svg {
   cursor: pointer;
 }
 
+/* Потемнение кнопки при наведении. */
 .legend-buttons button:hover {
   background-color: #3a6b93;
 }
 
+/* Кнопка скрытия категорий. */
 #toggleLegend {
   width: 40px;
   text-align: center;
 }
 
+/* Стилизация скроллбара. */
 .legend-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -102,6 +114,7 @@ svg {
   border-radius: 3px;
 }
 
+/* Кнопка "Новая трата". */
 .new-spending-button {
   position: fixed;
   bottom: 20px;
@@ -117,10 +130,12 @@ svg {
   z-index: 1001;
 }
 
+/* Потемнение кнопки при наведении. */
 .new-spending-button:hover {
   background-color: #3a6b93;
 }
 
+/* Блок добавления траты. */
 #newSpendingModal {
   position: fixed;
   bottom: 20px;
@@ -137,11 +152,13 @@ svg {
   transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
+/* Когда показывается. */
 #newSpendingModal.show {
   transform: translateY(0);
   opacity: 1;
 }
 
+/* Заголовок блока добавления траты. */
 #newSpendingModal h2 {
   margin-top: 0;
   font-size: 20px;
@@ -149,12 +166,14 @@ svg {
   color: #4682B4;
 }
 
+/* Подписи к полям. */
 #newSpendingModal label {
   display: block;
   margin-top: 10px;
   font-size: 16px;
 }
 
+/* Выпадающий список с категорий. */
 .custom-select {
   position: relative;
   width: 100%;
@@ -165,10 +184,12 @@ svg {
   margin-top: 5px;
 }
 
+/* Выбранный пункт. */
 .custom-select .selected-option {
   padding: 8px;
 }
 
+/* Стилизация списка вариантов. */
 .custom-select .options-container {
   position: absolute;
   top: 100%;
@@ -186,14 +207,17 @@ svg {
   display: block;
 }
 
+/* Элемент списка. */
 .custom-select .option {
   padding: 8px;
 }
 
+/* Потемнение кнопки при наведении. */
 .custom-select .option:hover {
   background: #f0f0f0;
 }
 
+/* Поля ввода. */
 #newSpendingModal select,
 #newSpendingModal input[type="number"] {
   width: 100%;
@@ -203,6 +227,7 @@ svg {
   border-radius: 4px;
 }
 
+/* Кнопки в блоке. */
 #newSpendingModal button {
   margin-top: 15px;
   width: 100%;
@@ -215,10 +240,12 @@ svg {
   cursor: pointer;
 }
 
+/* Потемнение кнопки при наведении. */
 #newSpendingModal button:hover {
   background-color: #3a6b93;
 }
 
+/* Кнопка "Закрыть". */
 #newSpendingModal .close-btn {
   background-color: #fff;
   color: #4682B4;
@@ -226,6 +253,7 @@ svg {
   margin-top: 10px;
 }
 
+/* Стилизация блока с сообщением об успехе. */
 #successMessage {
   position: fixed;
   bottom: 20px;
@@ -241,6 +269,7 @@ svg {
   z-index: 1500;
 }
 
+/* Когда показывается. */
 #successMessage.show {
   opacity: 1;
   transform: translateY(0);

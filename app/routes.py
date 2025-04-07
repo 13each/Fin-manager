@@ -114,33 +114,32 @@ def logout():
     return redirect(url_for('routes.home'))
 
 
-@routes.route('/add-category', methods=['GET', 'POST'])
+@routes.route('/add-category', methods=['POST'])
 def add_category():
     if 'user_email' not in session:
         return redirect(url_for('routes.login'))
 
-    if request.method == 'POST':
-        name = request.form['name']
-        try:
-            limit = float(request.form['limit'])
-        except ValueError:
-            return redirect(url_for('routes.add_category'))
+    name = request.form['name']
+    try:
+        limit = float(request.form['limit'])
+        if limit < 0:
+            return "Limit must be non-negative", 400
+    except ValueError:
+        return "Invalid limit", 400
 
-        color_input = request.form.get('color') or "#000000"
-        categories = get_categories(session['user_email'])
+    color_input = request.form.get('color') or "#000000"
+    categories = get_categories(session['user_email'])
 
-        if name in categories:
-            return redirect(url_for('routes.add_category'))
+    if name in categories:
+        return "Category already exists", 400
 
-        categories[name] = {
-            "limit": limit,
-            "spent": 0,
-            "color": color_input
-        }
-        update_categories(session['user_email'], categories)
-        return redirect(url_for('routes.add_category'))
-
-    return render_template('add_category.html')
+    categories[name] = {
+        "limit": limit,
+        "spent": 0,
+        "color": color_input
+    }
+    update_categories(session['user_email'], categories)
+    return redirect(url_for('routes.view_categories'))
 
 
 @routes.route('/add-spending', methods=['GET', 'POST'])

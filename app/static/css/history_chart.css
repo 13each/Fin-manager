@@ -5,6 +5,7 @@ body {
   position: relative;
 }
 
+/* Дата. */
 .header {
   text-align: center;
   font-size: 32px;
@@ -12,18 +13,21 @@ body {
   margin-bottom: 20px;
 }
 
+/* Обёртка для диаграммы. */
 .chart-wrapper {
   position: relative;
   width: 500px;
   margin: 40px auto;
 }
 
+/* Диаграмма. */
 svg {
   width: 100%;
   height: auto;
   overflow: visible;
 }
 
+/* Блок легенды. */
 .legend {
   position: fixed;
   top: 20px;
@@ -41,6 +45,7 @@ svg {
   z-index: 1500;
 }
 
+/* Контейнер, со списком категорий. */
 .legend-list {
   overflow-y: auto;
   max-height: 240px;
@@ -48,12 +53,14 @@ svg {
   margin-bottom: 10px;
 }
 
+/* Категория в легенде. */
 .legend-item {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
 }
 
+/* Цвет категории. */
 .legend-color {
   width: 20px;
   height: 20px;
@@ -61,11 +68,13 @@ svg {
   border: 1px solid #ccc;
 }
 
+/* Кнопки легенды. */
 .legend-buttons {
   display: flex;
   justify-content: space-between;
 }
 
+/* Стилизация кнопок легенды. */
 .legend-buttons button {
   font-size: 18px;
   padding: 5px 10px;
@@ -76,15 +85,18 @@ svg {
   cursor: pointer;
 }
 
+/* Потемнение кнопки при наведении. */
 .legend-buttons button:hover {
   background-color: #3a6b93;
 }
 
+/* Кнопка скрытия категорий. */
 #toggleLegend {
   width: 40px;
   text-align: center;
 }
 
+/* Контур диаграммы. */
 .arcOutline {
   fill: none;
   stroke: rgba(100,100,100,0.8);
@@ -93,6 +105,7 @@ svg {
   stroke-linejoin: round;
 }
 
+/* Кнопка “Назад к истории”. */
 .back-history-button {
   position: fixed;
   bottom: 20px;
@@ -108,6 +121,7 @@ svg {
   z-index: 1001;
 }
 
+/* Потемнение кнопки при наведении. */
 .back-history-button:hover {
   background-color: #3a6b93;
 }

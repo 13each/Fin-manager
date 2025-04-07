@@ -11,6 +11,7 @@ body {
   min-height: 100vh;
 }
 
+/* Лого приложения. */
 .logo {
   display: block;
   margin: 0 auto 20px;
@@ -18,6 +19,7 @@ body {
   height: auto;
 }
 
+/* Блок входа. */
 .login-container {
   background-color: #FFFFFF;
   border: 1px solid #E0E0E0;
@@ -28,16 +30,19 @@ body {
   text-align: center;
 }
 
+/* Заголовок блока. */
 .login-container h1 {
   margin-bottom: 20px;
   color: #4682B4;
 }
 
+/* Расположениие элементов блока. */
 .login-container form {
   display: flex;
   flex-direction: column;
 }
 
+/* Поля ввода. */
 .login-container input {
   padding: 12px;
   margin-bottom: 15px;
@@ -48,12 +53,14 @@ body {
   box-sizing: border-box;
 }
 
+/* Подсветка при вводе в полях. */
 .login-container input:focus {
   outline: none;
   border-color: #87CEEB;
   box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
 }
 
+/* Кнопка входа. */
 .login-container button {
   padding: 12px;
   border: none;
@@ -65,10 +72,12 @@ body {
   transition: background-color 0.3s ease;
 }
 
+/* Потемнение кнопки при наведении. */
 .login-container button:hover {
   background-color: #4682B4;
 }
 
+/* Ссылки под формой. */
 .login-container a {
   display: block;
   margin-top: 15px;
@@ -77,14 +86,17 @@ body {
   color: #4682B4;
 }
 
+/* Подчеркивание ссылки при наведении. */
 .login-container a:hover {
   text-decoration: underline;
 }
 
+/* flash-сообщения. */
 .flash-messages {
   margin-bottom: 15px;
 }
 
+/* Стилизация для flash-сообщения. */
 .flash-message {
   padding: 10px;
   border-radius: 5px;
@@ -92,6 +104,7 @@ body {
   text-align: center;
 }
 
+/* Сообщение об ошибке. */
 .flash-message.error {
   background-color: #f8d7da;
   color: #721c24;

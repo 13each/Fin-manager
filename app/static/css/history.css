@@ -10,6 +10,7 @@ body {
   align-items: center;
 }
 
+/* Заголовок. */
 h1 {
   text-align: center;
   margin-bottom: 40px;
@@ -17,6 +18,7 @@ h1 {
   color: #4682B4;
 }
 
+/* Блок с краткой сводкой. */
 .summary-block {
   border: 2px solid #87CEEB;
   border-radius: 10px;
@@ -30,6 +32,7 @@ h1 {
   animation: slideDown 0.5s ease forwards;
 }
 
+/* Анимация появления. */
 @keyframes slideDown {
   from {
     transform: translateY(-20px);
@@ -41,6 +44,7 @@ h1 {
   }
 }
 
+/* Дата. */
 .header-left {
   font-size: 28px;
   font-weight: bold;
@@ -49,6 +53,7 @@ h1 {
   text-align: left;
 }
 
+/* Стилизация блока. */
 .summary-row {
   display: flex;
   justify-content: space-around;
@@ -56,6 +61,7 @@ h1 {
   margin-top: 20px;
 }
 
+/* Стилизация ячейки. */
 .summary-row .summary-item {
   flex: 1;
   display: flex;
@@ -67,6 +73,7 @@ h1 {
   padding: 0 10px;
 }
 
+/* Разделитель. */
 .summary-row .summary-item:not(:first-child) {
   border-left: 1px solid #ccc;
 }
@@ -75,6 +82,7 @@ h1 {
   display: inline-block;
 }
 
+/* Кнопка “Подробнее”. */
 .view-button {
   display: inline-block;
   padding: 10px 20px;
@@ -87,10 +95,12 @@ h1 {
   cursor: pointer;
 }
 
+/* Потемнение кнопки при наведении. */
 .view-button:hover {
   background-color: #3a6b93;
 }
 
+/* Сообщение “История пуста”. */
 .empty-message {
   font-size: 18px;
   color: #888;
