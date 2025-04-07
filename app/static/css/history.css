@@ -115,7 +115,7 @@ h1 {
   height: 200px;
   margin-top: 50px;
   background: #fff;
-  border: 2px dashed #87CEEB;
+  border: 2px solid #87CEEB;
   border-radius: 10px;
   width: 95%;
   max-width: 600px;
@@ -126,7 +126,8 @@ h1 {
 
 /* Текст в блоке. */
 .empty-message-text {
-  font-size: 20px;
-  color: #888;
+  font-size: 26px;
+  color: #4682B4;
   text-align: center;
+  font-weight: bold;
 }
