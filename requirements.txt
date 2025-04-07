@@ -3,3 +3,5 @@ bcrypt~=4.2.1
 Flask~=3.1.0
 APScheduler~=3.11.0
 gunicorn~=23.0.0
+Flask-Session~=0.8.0
+Flask-Mail~=0.10.0
