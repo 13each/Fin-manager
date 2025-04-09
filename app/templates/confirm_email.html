@@ -5,7 +5,8 @@
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
   <meta charset="UTF-8">
   <title>{% if session.get('lang') == 'ru' %}Подтверждение почты{% else %}Confirm Email{% endif %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/confirm_email.css') }}">
+  <link rel="preload" href="{{ url_for('static', filename='css/confirm_email.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/confirm_email.css') }}"></noscript>
 </head>
 <body>
   <img class="logo" src="{{ url_for('static', filename='images/Name.png') }}" alt="Logo">

@@ -6,7 +6,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% if session.get('lang') == 'ru' %}Вход в аккаунт{% else %}Login{% endif %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <link rel="preload" href="{{ url_for('static', filename='css/login.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}"></noscript>
 </head>
 <body>
   <img class="logo" src="{{ url_for('static', filename='images/Name.png') }}" alt="Logo">
