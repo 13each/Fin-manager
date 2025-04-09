@@ -526,3 +526,40 @@ h1 {
     width: 100%;
   }
 }
+
+/* Контейнер для flash-сообщений. */
+.flash-container {
+  width: 95%;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 0;
+}
+
+/* Flash-сообщения. */
+.flash-message {
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* Flash-сообщение об ошибке. */
+.flash-message.error {
+  background-color: #ffe6e6;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+}
+
+/* Анимация появления. */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

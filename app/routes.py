@@ -522,6 +522,12 @@ def accumulation():
 
         try:
             total = float(request.form['total'])
+            if total <= 0:
+                if session.get('lang') == 'ru':
+                    flash("Сумма цели должна быть больше нуля", "error")
+                else:
+                    flash("Total amount should be positive", "error")
+                return redirect(url_for('routes.accumulation'))
         except ValueError:
             return redirect(url_for('routes.accumulation'))
 
