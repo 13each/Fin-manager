@@ -12,6 +12,18 @@
 
   <h1>{% if session.get('lang') == 'ru' %}Категории{% else %}Categories{% endif %}</h1>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {% if category == 'error' %}
+          <div class="add-cat-error-wrapper">
+            <div class="add-cat-error" style="display: block;">{{ message }}</div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   <div class="categories-container">
     {% for cat, data in categories.items() %}
       <div class="category-block" data-category="{{ cat }}">

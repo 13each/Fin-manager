@@ -471,20 +471,20 @@ def update_category():
     try:
         new_limit = float(request.form.get('new_limit'))
         if new_limit < 0:
-            return "Limit must be non-negative", 400
+            flash("Лимит должен быть больше нуля" if session.get('lang') == 'ru' else "Limit must be greater than zero", "error")
+            return redirect(url_for('routes.view_categories'))
     except ValueError:
         return redirect(url_for('routes.view_categories'))
 
     new_color = request.form.get('new_color') or "#000000"
 
     user_categories = get_categories(session['user_email'])
-    if new_name in user_categories:
-        return "Category already exists", 400
     if old_name not in user_categories:
         return redirect(url_for('routes.view_categories'))
 
     if new_name != old_name:
         if new_name in user_categories:
+            flash("Категория с таким названием уже существует" if session.get('lang') == 'ru' else "Category with this name already exists", "error")
             return redirect(url_for('routes.view_categories'))
 
         cat_data = user_categories.pop(old_name)
